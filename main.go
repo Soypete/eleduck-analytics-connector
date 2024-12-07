@@ -1,50 +1,36 @@
 package main
 
-import "fmt"
-
-package main
-
 import (
-	"context"
-	"database/sql"
-	"embed"
 	"fmt"
-	"net/url"
+	"sync"
 
-	"github.com/pressly/goose/v3"
+	"github.com/soypete/eleduck-analytics-connector/auth"
+	"github.com/soypete/eleduck-analytics-connector/connections"
+	"github.com/soypete/eleduck-analytics-connector/persistance/postgres"
 )
 
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
-
 func main() {
-	params := url.Values{}
-	params.Set("sslmode", "disable")
 
-	// this is a personal preference to use url.URL to
-	// build up the connection string. This works well for
-	// postgres, but other drivers might have their own quirks.
-	connectionString := url.URL{
-		Scheme:   "postgresql",
-		User:     url.UserPassword("postgres", "postgres"),
-		Host:     "localhost:5432",
-		Path:     "postgres",
-		RawQuery: params.Encode(),
-	}
-
-	db, err := sql.Open("postgres", connectionString.String())
+	wg := new(sync.WaitGroup)
+	// setup db connection
+	db, err := postgres.Setup(wg)
 	if err != nil {
 		panic(err)
 	}
 
-	goose.SetBaseFS(embedMigrations)
-
-	if err := goose.SetDialect("postgres"); err != nil {
+	// Setup the twitch client
+	creds, err := auth.SetupCredentials(wg)
+	if err != nil {
 		panic(err)
 	}
 
-	if err := goose.Up(db, "migrations"); err != nil {
+	wg.Wait()
+
+	fmt.Println("ready to call")
+	twitchCaller := connections.NewTwitchClient(creds, db)
+	err = twitchCaller.FetchStreamCount()
+	if err != nil {
 		panic(err)
 	}
-
+	fmt.Println("done")
 }
