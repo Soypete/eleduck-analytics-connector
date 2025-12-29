@@ -1,0 +1,25 @@
+{
+  "sourceType": "stripe",
+  "name": "src_stripe",
+  "config": {
+    "client_secret": "${STRIPE_SECRET_KEY}",
+    "account_id": "${STRIPE_ACCOUNT_ID}",
+    "start_date": "2020-01-01T00:00:00Z"
+  },
+  "streams": [
+    "charges",
+    "customers",
+    "invoices",
+    "subscriptions",
+    "products",
+    "prices",
+    "payment_intents",
+    "balance_transactions",
+    "payouts"
+  ],
+  "syncSchedule": {
+    "scheduleType": "cron",
+    "cronExpression": "0 2 * * *"
+  },
+  "notes": "Use restricted key with read-only access."
+}

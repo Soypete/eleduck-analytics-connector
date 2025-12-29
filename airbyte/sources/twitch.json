@@ -1,0 +1,22 @@
+{
+  "sourceType": "twitch",
+  "name": "src_twitch",
+  "config": {
+    "client_id": "${TWITCH_CLIENT_ID}",
+    "client_secret": "${TWITCH_CLIENT_SECRET}",
+    "user_id": "${TWITCH_USER_ID}"
+  },
+  "streams": [
+    "streams",
+    "followers",
+    "videos",
+    "clips",
+    "subscriptions",
+    "channel_points"
+  ],
+  "syncSchedule": {
+    "scheduleType": "cron",
+    "cronExpression": "0 2 * * *"
+  },
+  "notes": "Sync daily at 2am UTC. Uses Twitch Helix API."
+}
