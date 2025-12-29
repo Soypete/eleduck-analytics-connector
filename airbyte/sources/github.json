@@ -1,0 +1,29 @@
+{
+  "sourceType": "github",
+  "name": "src_github",
+  "config": {
+    "credentials": {
+      "personal_access_token": "${GITHUB_PAT}"
+    },
+    "repositories": [
+      "Soypete/*"
+    ],
+    "start_date": "2020-01-01T00:00:00Z"
+  },
+  "streams": [
+    "repositories",
+    "commits",
+    "pull_requests",
+    "issues",
+    "stargazers",
+    "collaborators",
+    "deployments",
+    "workflows",
+    "workflow_runs"
+  ],
+  "syncSchedule": {
+    "scheduleType": "cron",
+    "cronExpression": "0 2 * * *"
+  },
+  "notes": "PAT needs repo, read:org, read:user scopes."
+}

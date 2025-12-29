@@ -1,0 +1,98 @@
+# Airbyte OSS Helm Chart Values
+# Chart: https://github.com/airbytehq/airbyte-platform-charts
+
+global:
+  serviceAccountName: airbyte
+  deploymentMode: "oss"
+  edition: "community"
+
+  # Use external PostgreSQL (from Plan 1)
+  database:
+    type: external
+    host: postgres.eleduck-analytics.svc.cluster.local
+    port: 5432
+    database: airbyte_internal
+    secretName: postgres-credentials
+    secretUserKey: username
+    secretPasswordKey: password
+
+# Disable internal PostgreSQL
+postgresql:
+  enabled: false
+
+# Disable internal Minio - use local storage
+minio:
+  enabled: false
+
+# Webapp configuration
+webapp:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Server configuration
+server:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1"
+
+# Worker configuration
+worker:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1"
+
+# Temporal configuration
+temporal:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+# Pod configuration
+pod:
+  tolerations: []
+  nodeSelector: {}
+
+# Logging
+airbyte-bootloader:
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+
+# Connector builder (optional, can disable to save resources)
+connector-builder-server:
+  enabled: false
+
+# Keycloak (disable - using Tailscale for auth)
+keycloak:
+  enabled: false
+
+keycloak-setup:
+  enabled: false

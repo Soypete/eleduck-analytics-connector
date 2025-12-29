@@ -1,0 +1,24 @@
+{
+  "sourceType": "linkedin-pages",
+  "name": "src_linkedin",
+  "config": {
+    "credentials": {
+      "auth_type": "oauth2.0",
+      "client_id": "${LINKEDIN_CLIENT_ID}",
+      "client_secret": "${LINKEDIN_CLIENT_SECRET}",
+      "refresh_token": "${LINKEDIN_REFRESH_TOKEN}"
+    },
+    "org_id": "${LINKEDIN_ORGANIZATION_ID}"
+  },
+  "streams": [
+    "share_statistics",
+    "follower_statistics",
+    "page_statistics",
+    "total_follower_counts"
+  ],
+  "syncSchedule": {
+    "scheduleType": "cron",
+    "cronExpression": "0 2 * * *"
+  },
+  "notes": "Requires LinkedIn Company Page admin access."
+}
