@@ -1,0 +1,130 @@
+version: 2
+
+models:
+  - name: fact_daily_engagement
+    description: Daily engagement metrics by content across all platforms
+    columns:
+      - name: date_key
+        description: Foreign key to dim_date
+        tests:
+          - not_null
+      - name: content_key
+        description: Foreign key to dim_content
+        tests:
+          - not_null
+      - name: platform
+        description: Platform identifier
+      - name: views
+        description: Number of views
+      - name: likes
+        description: Number of likes
+      - name: comments
+        description: Number of comments
+      - name: shares
+        description: Number of shares
+      - name: saves
+        description: Number of saves
+      - name: watch_time_seconds
+        description: Total watch time in seconds
+      - name: avg_view_duration_seconds
+        description: Average view duration in seconds
+      - name: followers_gained
+        description: Followers gained from this content
+      - name: dbt_updated_at
+        description: DBT processing timestamp
+
+  - name: fact_revenue
+    description: Revenue transactions from Stripe
+    columns:
+      - name: charge_id
+        description: Unique charge identifier
+        tests:
+          - not_null
+          - unique
+      - name: date_key
+        description: Foreign key to dim_date
+      - name: customer_id
+        description: Stripe customer ID
+      - name: revenue_source
+        description: Revenue source type
+      - name: amount_cents
+        description: Amount in cents
+      - name: amount_dollars
+        description: Amount in dollars
+      - name: currency
+        description: Currency code
+      - name: status
+        description: Charge status
+      - name: is_refunded
+        description: Whether the charge was refunded
+      - name: product_name
+        description: Product or service description
+      - name: invoice_id
+        description: Associated invoice ID
+      - name: created_at
+        description: Charge creation timestamp
+      - name: dbt_updated_at
+        description: DBT processing timestamp
+
+  - name: fact_content_performance
+    description: Aggregated content performance metrics
+    columns:
+      - name: content_key
+        description: Foreign key to dim_content
+        tests:
+          - not_null
+          - unique
+      - name: platform
+        description: Platform identifier
+      - name: total_views
+        description: Total lifetime views
+      - name: total_likes
+        description: Total lifetime likes
+      - name: total_comments
+        description: Total lifetime comments
+      - name: total_shares
+        description: Total lifetime shares
+      - name: total_watch_time_seconds
+        description: Total lifetime watch time
+      - name: avg_daily_views
+        description: Average daily views
+      - name: days_since_published
+        description: Days since content was published
+      - name: first_metric_date
+        description: First date with metrics
+      - name: last_metric_date
+        description: Most recent date with metrics
+      - name: dbt_updated_at
+        description: DBT processing timestamp
+
+  - name: fact_github_activity
+    description: Daily GitHub activity metrics by repository
+    columns:
+      - name: date_key
+        description: Foreign key to dim_date
+        tests:
+          - not_null
+      - name: repo_key
+        description: Foreign key to dim_repository
+        tests:
+          - not_null
+      - name: commits
+        description: Number of commits
+      - name: lines_added
+        description: Lines of code added
+      - name: lines_deleted
+        description: Lines of code deleted
+      - name: unique_contributors
+        description: Number of unique contributors
+      - name: prs_opened
+        description: Pull requests opened
+      - name: prs_merged
+        description: Pull requests merged
+      - name: prs_closed
+        description: Pull requests closed without merge
+      - name: issues_opened
+        description: Issues opened
+      - name: issues_closed
+        description: Issues closed
+      - name: dbt_updated_at
+        description: DBT processing timestamp

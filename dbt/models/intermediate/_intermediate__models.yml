@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: int_content_unified
+    description: Unified content records across all platforms (YouTube, Twitch, Twitter, LinkedIn)
+    columns:
+      - name: content_key
+        description: Surrogate key for content
+      - name: platform
+        description: Source platform
+      - name: native_id
+        description: Platform-specific content ID
+      - name: content_type
+        description: Type of content (video, stream, tweet, post)
+      - name: title
+        description: Content title
+      - name: description
+        description: Content description
+      - name: url
+        description: Direct URL to content
+      - name: thumbnail_url
+        description: Thumbnail URL
+      - name: published_at
+        description: Publish timestamp
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: int_daily_platform_metrics
+    description: Daily aggregated metrics by platform
+    columns:
+      - name: metric_date
+        description: Date of metrics
+      - name: platform
+        description: Platform name
+      - name: total_views
+        description: Total views across all content
+      - name: total_engagement
+        description: Total engagement (likes + comments + shares)
+      - name: content_count
+        description: Number of content pieces
+      - name: avg_engagement_rate
+        description: Average engagement rate

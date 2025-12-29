@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: stg_stripe__charges
+    description: Stripe charge records from Airbyte sync
+    columns:
+      - name: charge_id
+        description: Unique charge identifier
+      - name: customer_id
+        description: Customer ID
+      - name: amount_cents
+        description: Charge amount in cents
+      - name: amount_dollars
+        description: Charge amount in dollars
+      - name: currency
+        description: Currency code
+      - name: status
+        description: Charge status
+      - name: is_paid
+        description: Whether the charge was successful
+      - name: is_refunded
+        description: Whether the charge was refunded
+      - name: description
+        description: Charge description
+      - name: invoice_id
+        description: Associated invoice ID
+      - name: created_at
+        description: Charge creation timestamp
+      - name: failure_code
+        description: Failure code if applicable
+      - name: failure_message
+        description: Failure message if applicable
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_stripe__subscriptions
+    description: Stripe subscription records
+    columns:
+      - name: subscription_id
+        description: Unique subscription identifier
+      - name: customer_id
+        description: Customer ID
+      - name: status
+        description: Subscription status
+      - name: plan_id
+        description: Plan ID
+      - name: plan_amount_cents
+        description: Plan amount in cents
+      - name: plan_interval
+        description: Billing interval
+      - name: current_period_start
+        description: Current billing period start
+      - name: current_period_end
+        description: Current billing period end
+      - name: cancel_at_period_end
+        description: Whether subscription cancels at period end
+      - name: created_at
+        description: Subscription creation timestamp
+      - name: canceled_at
+        description: Cancellation timestamp
+      - name: ended_at
+        description: End timestamp
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_stripe__customers
+    description: Stripe customer records
+    columns:
+      - name: customer_id
+        description: Unique customer identifier
+      - name: email
+        description: Customer email
+      - name: name
+        description: Customer name
+      - name: description
+        description: Customer description
+      - name: created_at
+        description: Customer creation timestamp
+      - name: currency
+        description: Customer currency
+      - name: balance_cents
+        description: Account balance in cents
+      - name: is_delinquent
+        description: Whether customer is delinquent
+      - name: extracted_at
+        description: Airbyte extraction timestamp

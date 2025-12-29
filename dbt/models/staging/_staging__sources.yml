@@ -1,0 +1,78 @@
+version: 2
+
+sources:
+  - name: youtube
+    database: analytics
+    schema: raw
+    tables:
+      - name: videos
+        description: YouTube video metadata from Airbyte
+        columns:
+          - name: id
+            description: YouTube video ID
+      - name: channel_stats
+        description: Channel-level statistics
+      - name: video_metrics
+        description: Daily video performance metrics
+
+  - name: twitch
+    database: analytics
+    schema: raw
+    tables:
+      - name: streams
+        description: Twitch stream records
+      - name: followers
+        description: Follower events
+      - name: videos
+        description: VODs and clips
+
+  - name: twitter
+    database: analytics
+    schema: raw
+    tables:
+      - name: tweets
+        description: Tweet records
+      - name: user_metrics
+        description: Account-level metrics
+
+  - name: linkedin
+    database: analytics
+    schema: raw
+    tables:
+      - name: posts
+        description: LinkedIn post records
+      - name: page_stats
+        description: Company page statistics
+
+  - name: github
+    database: analytics
+    schema: raw
+    tables:
+      - name: repositories
+        description: Repository metadata
+      - name: commits
+        description: Commit records
+      - name: pull_requests
+        description: Pull request records
+      - name: issues
+        description: Issue records
+      - name: stargazers
+        description: Star events
+
+  - name: stripe
+    database: analytics
+    schema: raw
+    tables:
+      - name: charges
+        description: Payment charges
+      - name: customers
+        description: Customer records
+      - name: subscriptions
+        description: Subscription records
+
+  - name: notion
+    database: analytics
+    schema: raw
+    tables:
+      - name: pages
+        description: Notion pages (blog posts)

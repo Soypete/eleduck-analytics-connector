@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: stg_twitch__streams
+    description: Twitch stream records from Airbyte sync
+    columns:
+      - name: stream_id
+        description: Unique stream identifier
+      - name: user_id
+        description: Broadcaster user ID
+      - name: user_login
+        description: Broadcaster login name
+      - name: user_name
+        description: Broadcaster display name
+      - name: game_id
+        description: Game/category ID
+      - name: game_name
+        description: Game/category name
+      - name: title
+        description: Stream title
+      - name: viewer_count
+        description: Peak viewer count
+      - name: started_at
+        description: Stream start timestamp
+      - name: ended_at
+        description: Stream end timestamp
+      - name: language
+        description: Stream language
+      - name: thumbnail_url
+        description: Stream thumbnail URL
+      - name: stream_url
+        description: Direct URL to the stream
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_twitch__followers
+    description: Twitch follower events
+    columns:
+      - name: follower_id
+        description: Follower user ID
+      - name: follower_login
+        description: Follower login name
+      - name: followed_at
+        description: Follow timestamp
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_twitch__videos
+    description: Twitch VODs and clips
+    columns:
+      - name: video_id
+        description: Unique video identifier
+      - name: stream_id
+        description: Associated stream ID
+      - name: user_id
+        description: Creator user ID
+      - name: user_name
+        description: Creator display name
+      - name: title
+        description: Video title
+      - name: description
+        description: Video description
+      - name: video_type
+        description: Type of video (archive, highlight, upload)
+      - name: duration_seconds
+        description: Video duration in seconds
+      - name: view_count
+        description: Total view count
+      - name: created_at
+        description: Video creation timestamp
+      - name: published_at
+        description: Video publish timestamp
+      - name: video_url
+        description: Direct URL to the video
+      - name: thumbnail_url
+        description: Video thumbnail URL
+      - name: extracted_at
+        description: Airbyte extraction timestamp

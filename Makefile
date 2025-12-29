@@ -1,4 +1,5 @@
-.PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres
+.PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres \
+	build-dbt push-dbt dbt-build dbt-run dbt-test dbt-seed dbt-logs generate-dim-date
 
 NAMESPACE := eleduck-analytics
 POSTGRES_POD := $(shell kubectl get pods -n $(NAMESPACE) -l app=postgres -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
@@ -40,3 +41,37 @@ secrets: ## List secrets in namespace
 
 describe-postgres: ## Describe postgres deployment
 	kubectl describe deployment -n $(NAMESPACE) postgres
+
+# DBT operations
+build-dbt: ## Build DBT Docker image
+	docker build -t ghcr.io/soypete/eleduck-dbt:latest -f docker/dbt/Dockerfile .
+
+push-dbt: ## Push DBT Docker image
+	docker push ghcr.io/soypete/eleduck-dbt:latest
+
+dbt-build: ## Run dbt build via Kubernetes job
+	kubectl delete job dbt-manual -n $(NAMESPACE) --ignore-not-found
+	kubectl apply -f k8s/dbt/job-manual.yaml
+	kubectl wait --for=condition=complete job/dbt-manual -n $(NAMESPACE) --timeout=600s
+	kubectl logs job/dbt-manual -n $(NAMESPACE)
+
+dbt-run: ## Run dbt run via Kubernetes job
+	kubectl delete job dbt-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/build/run/' k8s/dbt/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/dbt-manual -n $(NAMESPACE) --timeout=600s
+
+dbt-test: ## Run dbt test via Kubernetes job
+	kubectl delete job dbt-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/build/test/' k8s/dbt/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/dbt-manual -n $(NAMESPACE) --timeout=300s
+
+dbt-seed: ## Run dbt seed (load dim_date, etc.)
+	kubectl delete job dbt-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/build/seed/' k8s/dbt/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/dbt-manual -n $(NAMESPACE) --timeout=300s
+
+dbt-logs: ## View latest DBT job logs
+	kubectl logs -l job-name=dbt-manual -n $(NAMESPACE)
+
+generate-dim-date: ## Generate dim_date seed CSV
+	python scripts/generate_dim_date.py

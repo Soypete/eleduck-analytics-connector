@@ -1,0 +1,137 @@
+version: 2
+
+models:
+  - name: stg_youtube__videos
+    description: Cleaned YouTube video metadata
+    columns:
+      - name: video_id
+        description: Unique YouTube video identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_youtube__channel_stats
+    description: YouTube channel statistics
+
+  - name: stg_youtube__video_metrics
+    description: Daily YouTube video performance metrics
+    columns:
+      - name: video_id
+        description: YouTube video ID
+        tests:
+          - not_null
+      - name: metric_date
+        description: Date of the metrics
+        tests:
+          - not_null
+
+  - name: stg_twitch__streams
+    description: Twitch stream records
+    columns:
+      - name: stream_id
+        description: Unique stream identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_twitch__followers
+    description: Twitch follower events
+
+  - name: stg_twitch__videos
+    description: Twitch VODs and clips
+
+  - name: stg_twitter__tweets
+    description: Twitter tweet records
+    columns:
+      - name: tweet_id
+        description: Unique tweet identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_twitter__user_metrics
+    description: Twitter account-level metrics
+
+  - name: stg_linkedin__posts
+    description: LinkedIn post records
+    columns:
+      - name: post_id
+        description: Unique post identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_linkedin__page_stats
+    description: LinkedIn company page statistics
+
+  - name: stg_github__repos
+    description: GitHub repository metadata
+    columns:
+      - name: repo_id
+        description: Unique repository identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_github__commits
+    description: GitHub commit records
+    columns:
+      - name: commit_sha
+        description: Unique commit SHA
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_github__pull_requests
+    description: GitHub pull request records
+    columns:
+      - name: pr_id
+        description: Unique pull request identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_github__issues
+    description: GitHub issue records
+    columns:
+      - name: issue_id
+        description: Unique issue identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_stripe__charges
+    description: Stripe charge records
+    columns:
+      - name: charge_id
+        description: Unique charge identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_stripe__subscriptions
+    description: Stripe subscription records
+    columns:
+      - name: subscription_id
+        description: Unique subscription identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_stripe__customers
+    description: Stripe customer records
+    columns:
+      - name: customer_id
+        description: Unique customer identifier
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_notion__pages
+    description: Notion page records
+    columns:
+      - name: page_id
+        description: Unique page identifier
+        tests:
+          - not_null
+          - unique

@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: stg_twitter__tweets
+    description: Twitter tweet records from Airbyte sync
+    columns:
+      - name: tweet_id
+        description: Unique tweet identifier
+      - name: author_id
+        description: Tweet author user ID
+      - name: text
+        description: Tweet text content
+      - name: created_at
+        description: Tweet creation timestamp
+      - name: retweet_count
+        description: Number of retweets
+      - name: reply_count
+        description: Number of replies
+      - name: like_count
+        description: Number of likes
+      - name: quote_count
+        description: Number of quote tweets
+      - name: impression_count
+        description: Number of impressions
+      - name: conversation_id
+        description: Conversation thread ID
+      - name: in_reply_to_user_id
+        description: User ID being replied to
+      - name: tweet_url
+        description: Direct URL to the tweet
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_twitter__user_metrics
+    description: Twitter account-level metrics
+    columns:
+      - name: user_id
+        description: User ID
+      - name: username
+        description: Twitter handle
+      - name: name
+        description: Display name
+      - name: followers_count
+        description: Number of followers
+      - name: following_count
+        description: Number of accounts followed
+      - name: tweet_count
+        description: Total tweet count
+      - name: listed_count
+        description: Number of lists user is on
+      - name: metric_date
+        description: Date of the metrics snapshot
+      - name: extracted_at
+        description: Airbyte extraction timestamp

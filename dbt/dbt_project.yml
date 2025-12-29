@@ -1,0 +1,54 @@
+name: 'eleduck_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'eleduck_analytics'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  # Start date for historical data
+  start_date: '2020-01-01'
+  # Fiscal year starts in July
+  fiscal_year_start_month: 7
+
+models:
+  eleduck_analytics:
+    +persist_docs:
+      relation: true
+      columns: true
+    staging:
+      +schema: staging
+      +materialized: view
+      +tags: ['staging']
+    intermediate:
+      +schema: staging
+      +materialized: ephemeral
+      +tags: ['intermediate']
+    dimensions:
+      +schema: analytics
+      +materialized: table
+      +tags: ['dimensions', 'star_schema']
+    facts:
+      +schema: analytics
+      +materialized: incremental
+      +incremental_strategy: merge
+      +tags: ['facts', 'star_schema']
+
+seeds:
+  eleduck_analytics:
+    +schema: analytics
+    dim_date:
+      +column_types:
+        date_key: integer
+        full_date: date

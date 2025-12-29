@@ -4,7 +4,6 @@ kind: Kustomization
 namespace: eleduck-analytics
 
 resources:
-  - namespace.yaml
-  - 1password/onepassworditem-postgres.yaml
-  - postgres/
-  - dbt/
+  - configmap-profiles.yaml
+  - cronjob.yaml
+  - job-manual.yaml

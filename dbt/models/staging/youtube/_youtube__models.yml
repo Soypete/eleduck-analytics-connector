@@ -1,0 +1,82 @@
+version: 2
+
+models:
+  - name: stg_youtube__videos
+    description: Cleaned YouTube video metadata from Airbyte sync
+    columns:
+      - name: video_id
+        description: Unique YouTube video identifier
+      - name: title
+        description: Video title
+      - name: description
+        description: Video description
+      - name: channel_id
+        description: Channel ID that owns the video
+      - name: channel_name
+        description: Channel display name
+      - name: category_id
+        description: YouTube category ID
+      - name: tags
+        description: Video tags array
+      - name: published_at
+        description: Video publish timestamp
+      - name: view_count
+        description: Total view count at sync time
+      - name: like_count
+        description: Total like count at sync time
+      - name: comment_count
+        description: Total comment count at sync time
+      - name: duration_iso
+        description: Video duration in ISO 8601 format
+      - name: video_url
+        description: Direct URL to the video
+      - name: thumbnail_url
+        description: Video thumbnail URL
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_youtube__channel_stats
+    description: YouTube channel-level statistics
+    columns:
+      - name: channel_id
+        description: Unique channel identifier
+      - name: channel_title
+        description: Channel display name
+      - name: subscriber_count
+        description: Total subscriber count
+      - name: video_count
+        description: Total video count
+      - name: view_count
+        description: Total channel view count
+      - name: metric_date
+        description: Date of the statistics snapshot
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_youtube__video_metrics
+    description: Daily YouTube video performance metrics
+    columns:
+      - name: video_id
+        description: YouTube video ID
+      - name: metric_date
+        description: Date of the metrics
+      - name: views
+        description: Views on this date
+      - name: watch_time_seconds
+        description: Total watch time in seconds
+      - name: likes
+        description: Likes on this date
+      - name: comments
+        description: Comments on this date
+      - name: shares
+        description: Shares on this date
+      - name: dislikes
+        description: Dislikes on this date
+      - name: avg_view_duration_seconds
+        description: Average view duration in seconds
+      - name: subscribers_gained
+        description: Subscribers gained from this video
+      - name: subscribers_lost
+        description: Subscribers lost from this video
+      - name: extracted_at
+        description: Airbyte extraction timestamp

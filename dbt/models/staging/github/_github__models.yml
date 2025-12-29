@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: stg_github__repos
+    description: GitHub repository metadata from Airbyte sync
+    columns:
+      - name: repo_id
+        description: Unique repository identifier
+      - name: repo_name
+        description: Repository name
+      - name: full_name
+        description: Full repository name (owner/repo)
+      - name: owner_login
+        description: Repository owner login
+      - name: description
+        description: Repository description
+      - name: language
+        description: Primary programming language
+      - name: html_url
+        description: Direct URL to the repository
+      - name: is_private
+        description: Whether the repository is private
+      - name: is_fork
+        description: Whether the repository is a fork
+      - name: stargazers_count
+        description: Number of stars
+      - name: forks_count
+        description: Number of forks
+      - name: watchers_count
+        description: Number of watchers
+      - name: open_issues_count
+        description: Number of open issues
+      - name: created_at
+        description: Repository creation timestamp
+      - name: updated_at
+        description: Last update timestamp
+      - name: pushed_at
+        description: Last push timestamp
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_github__commits
+    description: GitHub commit records
+    columns:
+      - name: commit_sha
+        description: Unique commit SHA
+      - name: repo_full_name
+        description: Repository full name
+      - name: author_name
+        description: Commit author name
+      - name: author_email
+        description: Commit author email
+      - name: authored_at
+        description: Authorship timestamp
+      - name: committer_name
+        description: Committer name
+      - name: committed_at
+        description: Commit timestamp
+      - name: message
+        description: Commit message
+      - name: lines_added
+        description: Lines added
+      - name: lines_deleted
+        description: Lines deleted
+      - name: lines_changed
+        description: Total lines changed
+      - name: commit_url
+        description: Direct URL to the commit
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_github__pull_requests
+    description: GitHub pull request records
+    columns:
+      - name: pr_id
+        description: Unique pull request identifier
+      - name: pr_number
+        description: Pull request number
+      - name: repo_full_name
+        description: Repository full name
+      - name: title
+        description: Pull request title
+      - name: description
+        description: Pull request body
+      - name: state
+        description: Pull request state
+      - name: author_login
+        description: Author login
+      - name: created_at
+        description: Creation timestamp
+      - name: merged_at
+        description: Merge timestamp
+      - name: closed_at
+        description: Close timestamp
+      - name: lines_added
+        description: Lines added
+      - name: lines_deleted
+        description: Lines deleted
+      - name: files_changed
+        description: Number of files changed
+      - name: commit_count
+        description: Number of commits
+      - name: comment_count
+        description: Number of comments
+      - name: is_merged
+        description: Whether the PR was merged
+      - name: is_draft
+        description: Whether the PR is a draft
+      - name: pr_url
+        description: Direct URL to the pull request
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_github__issues
+    description: GitHub issue records
+    columns:
+      - name: issue_id
+        description: Unique issue identifier
+      - name: issue_number
+        description: Issue number
+      - name: repo_full_name
+        description: Repository full name
+      - name: title
+        description: Issue title
+      - name: body
+        description: Issue body
+      - name: state
+        description: Issue state
+      - name: author_login
+        description: Author login
+      - name: created_at
+        description: Creation timestamp
+      - name: closed_at
+        description: Close timestamp
+      - name: comment_count
+        description: Number of comments
+      - name: is_pull_request
+        description: Whether the issue is a pull request
+      - name: issue_url
+        description: Direct URL to the issue
+      - name: extracted_at
+        description: Airbyte extraction timestamp

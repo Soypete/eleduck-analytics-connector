@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_linkedin__posts
+    description: LinkedIn post records from Airbyte sync
+    columns:
+      - name: post_id
+        description: Unique post identifier
+      - name: author_urn
+        description: LinkedIn URN of the author
+      - name: title
+        description: Post title (if article)
+      - name: description
+        description: Post text content
+      - name: published_at
+        description: Post publish timestamp
+      - name: visibility
+        description: Post visibility setting
+      - name: like_count
+        description: Number of likes
+      - name: comment_count
+        description: Number of comments
+      - name: share_count
+        description: Number of shares
+      - name: click_count
+        description: Number of clicks
+      - name: impression_count
+        description: Number of impressions
+      - name: post_url
+        description: Direct URL to the post
+      - name: extracted_at
+        description: Airbyte extraction timestamp
+
+  - name: stg_linkedin__page_stats
+    description: LinkedIn company page statistics
+    columns:
+      - name: page_id
+        description: Company page ID
+      - name: page_name
+        description: Company page name
+      - name: follower_count
+        description: Number of followers
+      - name: metric_date
+        description: Date of the statistics snapshot
+      - name: page_views
+        description: Number of page views
+      - name: unique_visitors
+        description: Number of unique visitors
+      - name: extracted_at
+        description: Airbyte extraction timestamp

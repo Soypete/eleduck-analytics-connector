@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stg_notion__pages
+    description: Notion page records from Airbyte sync
+    columns:
+      - name: page_id
+        description: Unique page identifier
+      - name: parent_id
+        description: Parent page/database ID
+      - name: parent_type
+        description: Type of parent (database, page, workspace)
+      - name: title
+        description: Page title
+      - name: created_at
+        description: Page creation timestamp
+      - name: last_edited_at
+        description: Last edit timestamp
+      - name: created_by_id
+        description: ID of user who created the page
+      - name: last_edited_by_id
+        description: ID of user who last edited
+      - name: is_archived
+        description: Whether the page is archived
+      - name: page_url
+        description: Direct URL to the page
+      - name: extracted_at
+        description: Airbyte extraction timestamp

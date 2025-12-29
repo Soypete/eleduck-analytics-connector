@@ -1,0 +1,126 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Date dimension with fiscal calendar support
+    columns:
+      - name: date_key
+        description: Integer date key (YYYYMMDD format)
+        tests:
+          - not_null
+          - unique
+      - name: full_date
+        description: Full date value
+      - name: year
+        description: Calendar year
+      - name: quarter
+        description: Calendar quarter (1-4)
+      - name: month
+        description: Calendar month (1-12)
+      - name: month_name
+        description: Full month name
+      - name: week_of_year
+        description: ISO week of year
+      - name: day_of_month
+        description: Day of month (1-31)
+      - name: day_of_week
+        description: ISO day of week (1=Monday, 7=Sunday)
+      - name: day_name
+        description: Full day name
+      - name: is_weekend
+        description: Whether the date is a weekend
+      - name: fiscal_year
+        description: Fiscal year (starts in July)
+      - name: fiscal_quarter
+        description: Fiscal quarter (1-4)
+      - name: year_quarter
+        description: Year and quarter string (e.g., 2024-Q1)
+      - name: year_month
+        description: Year and month string (e.g., 2024-01)
+      - name: fiscal_year_quarter
+        description: Fiscal year and quarter string (e.g., 2024-FQ1)
+
+  - name: dim_platform
+    description: Platform master data dimension
+    columns:
+      - name: platform_key
+        description: Surrogate key for platform
+        tests:
+          - not_null
+          - unique
+      - name: platform_id
+        description: Platform identifier
+      - name: platform_name
+        description: Display name
+      - name: platform_category
+        description: Category (video, social, code, financial, productivity)
+      - name: platform_url
+        description: Platform URL
+
+  - name: dim_content
+    description: Unified content dimension across all platforms
+    columns:
+      - name: content_key
+        description: Surrogate key for content
+        tests:
+          - not_null
+          - unique
+      - name: platform_key
+        description: Foreign key to dim_platform
+        tests:
+          - relationships:
+              to: ref('dim_platform')
+              field: platform_key
+      - name: platform
+        description: Platform identifier
+      - name: native_id
+        description: Platform-specific content ID
+      - name: content_type
+        description: Type of content
+      - name: title
+        description: Content title
+      - name: description
+        description: Content description
+      - name: url
+        description: Direct URL to content
+      - name: thumbnail_url
+        description: Thumbnail URL
+      - name: published_at
+        description: Publish timestamp
+      - name: published_date_key
+        description: Foreign key to dim_date
+      - name: dbt_updated_at
+        description: DBT processing timestamp
+
+  - name: dim_repository
+    description: GitHub repository dimension
+    columns:
+      - name: repo_key
+        description: Surrogate key for repository
+        tests:
+          - not_null
+          - unique
+      - name: repo_id
+        description: GitHub repository ID
+      - name: repo_name
+        description: Repository name
+      - name: repo_full_name
+        description: Full repository name (owner/repo)
+      - name: owner
+        description: Repository owner
+      - name: description
+        description: Repository description
+      - name: primary_language
+        description: Primary programming language
+      - name: repo_url
+        description: Direct URL to repository
+      - name: is_private
+        description: Whether the repository is private
+      - name: is_fork
+        description: Whether the repository is a fork
+      - name: created_at
+        description: Repository creation timestamp
+      - name: updated_at
+        description: Last update timestamp
+      - name: dbt_updated_at
+        description: DBT processing timestamp

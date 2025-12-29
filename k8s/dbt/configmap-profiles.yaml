@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dbt-profiles
+  namespace: eleduck-analytics
+data:
+  profiles.yml: |
+    eleduck_analytics:
+      target: prod
+      outputs:
+        prod:
+          type: postgres
+          host: postgres.eleduck-analytics.svc.cluster.local
+          port: 5432
+          user: "{{ env_var('POSTGRES_USER') }}"
+          password: "{{ env_var('POSTGRES_PASSWORD') }}"
+          dbname: analytics
+          schema: analytics
+          threads: 4

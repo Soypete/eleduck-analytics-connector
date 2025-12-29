@@ -1,0 +1,24 @@
+eleduck_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: "{{ env_var('POSTGRES_USER') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD') }}"
+      dbname: analytics
+      schema: analytics
+      threads: 4
+      keepalives_idle: 0
+
+    prod:
+      type: postgres
+      host: postgres.eleduck-analytics.svc.cluster.local
+      port: 5432
+      user: "{{ env_var('POSTGRES_USER') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD') }}"
+      dbname: analytics
+      schema: analytics
+      threads: 4
+      keepalives_idle: 0
