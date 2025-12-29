@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sqlmesh-runner
+  namespace: eleduck-analytics
+spec:
+  schedule: "0 6 * * *"  # Daily at 6am UTC (after Airbyte syncs at 2am)
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          containers:
+            - name: sqlmesh
+              image: ghcr.io/soypete/eleduck-sqlmesh:latest
+              args: ["plan", "--auto-apply"]
+              env:
+                - name: POSTGRES_HOST
+                  value: postgres.eleduck-analytics.svc.cluster.local
+                - name: POSTGRES_PORT
+                  value: "5432"
+                - name: POSTGRES_DB
+                  value: analytics
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-credentials
+                      key: username
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgres-credentials
+                      key: password
+              resources:
+                requests:
+                  memory: "512Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "500m"
+          restartPolicy: OnFailure

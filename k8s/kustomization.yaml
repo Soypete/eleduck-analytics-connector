@@ -15,3 +15,4 @@ resources:
   - 1password/onepassworditem-airbyte-notion.yaml
   - postgres/
   - airbyte/
+  - sqlmesh/

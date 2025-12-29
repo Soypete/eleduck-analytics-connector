@@ -1,0 +1,40 @@
+# SQLMesh Project Configuration
+project: eleduck_analytics
+
+# Model defaults
+model_defaults:
+  dialect: postgres
+  start: '2020-01-01'
+
+# Gateway configurations
+gateways:
+  local:
+    connection:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: '{{ env_var("POSTGRES_USER") }}'
+      password: '{{ env_var("POSTGRES_PASSWORD") }}'
+      database: analytics
+
+  prod:
+    connection:
+      type: postgres
+      host: postgres.eleduck-analytics.svc.cluster.local
+      port: 5432
+      user: '{{ env_var("POSTGRES_USER") }}'
+      password: '{{ env_var("POSTGRES_PASSWORD") }}'
+      database: analytics
+
+# Default gateway
+default_gateway: local
+
+# Variables
+variables:
+  start_date: '2020-01-01'
+  fiscal_year_start_month: 7
+
+# Schema configuration
+physical_schema_override:
+  staging: staging
+  analytics: analytics
