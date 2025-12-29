@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metabase
+  namespace: eleduck-analytics
+  labels:
+    app: metabase
+    app.kubernetes.io/name: metabase
+    app.kubernetes.io/component: visualization
+    app.kubernetes.io/part-of: eleduck-analytics-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metabase
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: metabase
+    spec:
+      containers:
+        - name: metabase
+          image: metabase/metabase:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            # Application database (stores Metabase's own data)
+            - name: MB_DB_TYPE
+              value: postgres
+            - name: MB_DB_HOST
+              value: postgres.eleduck-analytics.svc.cluster.local
+            - name: MB_DB_PORT
+              value: "5432"
+            - name: MB_DB_DBNAME
+              value: metabase_app
+            - name: MB_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: MB_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+
+            # Jetty configuration
+            - name: MB_JETTY_PORT
+              value: "3000"
+            - name: MB_JETTY_HOST
+              value: "0.0.0.0"
+
+            # Disable telemetry
+            - name: MB_ANON_TRACKING_ENABLED
+              value: "false"
+
+            # Site settings
+            - name: MB_SITE_NAME
+              value: "SoypeteTech Analytics"
+
+            # Timezone
+            - name: JAVA_TIMEZONE
+              value: "America/Denver"
+
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          volumeMounts:
+            - name: metabase-data
+              mountPath: /metabase-data
+
+      volumes:
+        - name: metabase-data
+          persistentVolumeClaim:
+            claimName: metabase-data
