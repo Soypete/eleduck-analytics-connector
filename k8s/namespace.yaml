@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eleduck-analytics
+  labels:
+    app.kubernetes.io/name: eleduck-analytics
+    app.kubernetes.io/part-of: eleduck-analytics-stack

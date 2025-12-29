@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: eleduck-analytics
+data:
+  01-init-schemas.sql: |
+    -- Create schemas for data warehouse layers
+    CREATE SCHEMA IF NOT EXISTS raw;
+    CREATE SCHEMA IF NOT EXISTS staging;
+    CREATE SCHEMA IF NOT EXISTS analytics;
+
+    -- Grant usage to the main user
+    GRANT ALL ON SCHEMA raw TO CURRENT_USER;
+    GRANT ALL ON SCHEMA staging TO CURRENT_USER;
+    GRANT ALL ON SCHEMA analytics TO CURRENT_USER;
+
+    -- Create additional databases
+    CREATE DATABASE airbyte_internal;
+    CREATE DATABASE metabase_app;
+
+  02-enable-pg-duckdb.sql: |
+    -- Enable pg_duckdb extension
+    CREATE EXTENSION IF NOT EXISTS pg_duckdb;
+
+    -- Note: To use DuckDB for analytical queries, set:
+    -- SET duckdb.execution = true;
+    -- This can be done per-session or per-query
