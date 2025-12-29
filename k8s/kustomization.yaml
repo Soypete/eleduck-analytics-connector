@@ -5,5 +5,9 @@ namespace: eleduck-analytics
 
 resources:
   - namespace.yaml
+  # 1Password items
   - 1password/onepassworditem-postgres.yaml
+  - 1password/onepassworditem-metabase.yaml
+  # Infrastructure
   - postgres/
+  - metabase/

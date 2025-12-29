@@ -1,4 +1,4 @@
-.PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres
+.PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres port-forward-metabase logs-metabase restart-metabase metabase-shell
 
 NAMESPACE := eleduck-analytics
 POSTGRES_POD := $(shell kubectl get pods -n $(NAMESPACE) -l app=postgres -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
@@ -40,3 +40,17 @@ secrets: ## List secrets in namespace
 
 describe-postgres: ## Describe postgres deployment
 	kubectl describe deployment -n $(NAMESPACE) postgres
+
+# Metabase operations
+port-forward-metabase: ## Port forward Metabase to localhost:3000
+	@echo "Metabase available at http://localhost:3000"
+	kubectl port-forward svc/metabase 3000:3000 -n $(NAMESPACE)
+
+logs-metabase: ## Tail Metabase logs
+	kubectl logs -f deploy/metabase -n $(NAMESPACE)
+
+restart-metabase: ## Restart Metabase deployment
+	kubectl rollout restart deploy/metabase -n $(NAMESPACE)
+
+metabase-shell: ## Open shell in Metabase container
+	kubectl exec -it deploy/metabase -n $(NAMESPACE) -- /bin/sh
