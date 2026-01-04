@@ -1,4 +1,5 @@
-.PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres
+.PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres \
+	build-sqlmesh push-sqlmesh sqlmesh-plan sqlmesh-run sqlmesh-audit sqlmesh-logs generate-dim-date
 
 NAMESPACE := eleduck-analytics
 POSTGRES_POD := $(shell kubectl get pods -n $(NAMESPACE) -l app=postgres -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
@@ -40,3 +41,32 @@ secrets: ## List secrets in namespace
 
 describe-postgres: ## Describe postgres deployment
 	kubectl describe deployment -n $(NAMESPACE) postgres
+
+# SQLMesh operations
+build-sqlmesh: ## Build SQLMesh Docker image
+	docker build -t ghcr.io/soypete/eleduck-sqlmesh:latest -f docker/sqlmesh/Dockerfile .
+
+push-sqlmesh: ## Push SQLMesh Docker image
+	docker push ghcr.io/soypete/eleduck-sqlmesh:latest
+
+sqlmesh-plan: ## Run sqlmesh plan via Kubernetes job
+	kubectl delete job sqlmesh-manual -n $(NAMESPACE) --ignore-not-found
+	kubectl apply -f k8s/sqlmesh/job-manual.yaml
+	kubectl wait --for=condition=complete job/sqlmesh-manual -n $(NAMESPACE) --timeout=600s
+	kubectl logs job/sqlmesh-manual -n $(NAMESPACE)
+
+sqlmesh-run: ## Run sqlmesh run via Kubernetes job
+	kubectl delete job sqlmesh-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/plan --auto-apply/run/' k8s/sqlmesh/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/sqlmesh-manual -n $(NAMESPACE) --timeout=600s
+
+sqlmesh-audit: ## Run sqlmesh audit via Kubernetes job
+	kubectl delete job sqlmesh-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/plan --auto-apply/audit/' k8s/sqlmesh/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/sqlmesh-manual -n $(NAMESPACE) --timeout=300s
+
+sqlmesh-logs: ## View latest SQLMesh job logs
+	kubectl logs -l job-name=sqlmesh-manual -n $(NAMESPACE)
+
+generate-dim-date: ## Generate dim_date seed CSV
+	python scripts/generate_dim_date.py

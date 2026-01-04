@@ -1,0 +1,8 @@
+platform_id,platform_name,platform_category,platform_url
+youtube,YouTube,video,https://youtube.com
+twitch,Twitch,video,https://twitch.tv
+twitter,Twitter,social,https://twitter.com
+linkedin,LinkedIn,social,https://linkedin.com
+github,GitHub,code,https://github.com
+stripe,Stripe,financial,https://stripe.com
+notion,Notion,productivity,https://notion.so
