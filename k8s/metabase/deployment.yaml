@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metabase
+  namespace: eleduck-analytics
+  labels:
+    app: metabase
+    app.kubernetes.io/name: metabase
+    app.kubernetes.io/component: analytics
+    app.kubernetes.io/part-of: eleduck-analytics-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metabase
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: metabase
+    spec:
+      containers:
+        - name: metabase
+          image: metabase/metabase:v0.50.0
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            # Application database (for Metabase internal state)
+            - name: MB_DB_TYPE
+              value: postgres
+            - name: MB_DB_HOST
+              value: postgres
+            - name: MB_DB_PORT
+              value: "5432"
+            - name: MB_DB_DBNAME
+              value: metabase_app
+            - name: MB_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: MB_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            # Site settings
+            - name: MB_SITE_NAME
+              value: "SoypeteTech Podcast Analytics"
+            - name: MB_SITE_URL
+              value: "http://localhost:3000"
+            - name: MB_ANON_TRACKING_ENABLED
+              value: "false"
+            # Performance settings
+            - name: JAVA_OPTS
+              value: "-Xmx2g"
+            # Timezone
+            - name: MB_REPORT_TIMEZONE
+              value: "UTC"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"
+              cpu: "2"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5

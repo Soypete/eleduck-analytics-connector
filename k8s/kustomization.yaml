@@ -5,5 +5,13 @@ namespace: eleduck-analytics
 
 resources:
   - namespace.yaml
+  # 1Password secrets
   - 1password/onepassworditem-postgres.yaml
+  - 1password/onepassworditem-spotify.yaml
+  - 1password/onepassworditem-youtube.yaml
+  # Database
   - postgres/
+  # Data pipeline
+  - airbyte/
+  # Analytics dashboard
+  - metabase/

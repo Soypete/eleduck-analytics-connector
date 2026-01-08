@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: stg_spotify__episodes
+    description: "Staging model for Spotify for Creators podcast episodes"
+    columns:
+      - name: episode_id
+        description: "Unique Spotify episode identifier"
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "Episode title"
+        tests:
+          - not_null
+      - name: published_date
+        description: "Date the episode was released"
+        tests:
+          - not_null
+      - name: duration_seconds
+        description: "Duration of the episode in seconds"
+      - name: description
+        description: "Episode description"
+      - name: is_explicit
+        description: "Whether the episode is marked as explicit"
+      - name: spotify_uri
+        description: "Spotify URI for the episode"
+      - name: spotify_url
+        description: "Direct URL to the episode on Spotify"
+
+  - name: stg_spotify__daily_performance
+    description: "Staging model for daily episode performance metrics from Spotify"
+    columns:
+      - name: episode_id
+        description: "Spotify episode identifier"
+        tests:
+          - not_null
+      - name: metric_date
+        description: "Date of the performance metric"
+        tests:
+          - not_null
+      - name: starts
+        description: "Number of times the episode was started"
+        tests:
+          - not_null
+      - name: streams
+        description: "Number of streams (plays over 60 seconds)"
+        tests:
+          - not_null
+      - name: unique_listeners
+        description: "Count of unique listeners"
+      - name: avg_listen_seconds
+        description: "Average listen time in seconds"
+      - name: stream_through_rate
+        description: "Calculated ratio of streams to starts (completion rate)"
+
+  - name: stg_spotify__show_stats
+    description: "Staging model for show-level aggregate statistics from Spotify"
+    columns:
+      - name: stats_date
+        description: "Date of the stats snapshot"
+        tests:
+          - unique
+          - not_null
+      - name: total_streams
+        description: "Cumulative total streams"
+      - name: followers
+        description: "Current follower count"
+      - name: total_listeners
+        description: "Cumulative unique listeners"

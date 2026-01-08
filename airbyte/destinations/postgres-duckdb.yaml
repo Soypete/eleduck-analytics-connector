@@ -1,0 +1,32 @@
+# Airbyte Destination Configuration for PostgreSQL + DuckDB
+# Data lands in the 'raw' schema for DBT transformation
+#
+# Connection details are injected from 1Password secret
+
+destinationDefinitionId: postgres
+name: PostgreSQL DuckDB - Podcast Analytics
+connectionConfiguration:
+  # Connection details - injected from 1Password
+  host: "${POSTGRES_HOST}"
+  port: 5432
+  database: "${POSTGRES_DATABASE}"
+  username: "${POSTGRES_USER}"
+  password: "${POSTGRES_PASSWORD}"
+
+  # Schema configuration
+  schema: raw
+
+  # SSL configuration (for production)
+  ssl_mode:
+    mode: prefer
+
+  # Connection pool settings
+  jdbc_url_params: ""
+
+# Normalization settings
+normalization:
+  option: basic
+
+# Namespace configuration
+namespaceDefinition: source
+namespaceFormat: "${SOURCE_NAMESPACE}"
