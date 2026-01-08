@@ -1,0 +1,65 @@
+# Airbyte Connection: YouTube Analytics → PostgreSQL
+# Syncs video analytics from YouTube to raw schema
+
+name: YouTube to PostgreSQL
+sourceId: youtube-analytics
+destinationId: postgres-duckdb
+
+status: active
+
+syncCatalog:
+  streams:
+    - stream:
+        name: videos
+        namespace: youtube
+        jsonSchema: {}
+        supportedSyncModes:
+          - full_refresh
+        sourceDefinedPrimaryKey:
+          - - id
+      config:
+        syncMode: full_refresh
+        destinationSyncMode: overwrite
+        primaryKey:
+          - - id
+        aliasName: youtube_videos
+        selected: true
+
+    - stream:
+        name: daily_stats
+        namespace: youtube
+        jsonSchema: {}
+        supportedSyncModes:
+          - incremental
+        sourceDefinedCursor: true
+        defaultCursorField:
+          - date
+        sourceDefinedPrimaryKey:
+          - - video_id
+          - - date
+      config:
+        syncMode: incremental
+        destinationSyncMode: append
+        cursorField:
+          - date
+        primaryKey:
+          - - video_id
+          - - date
+        aliasName: youtube_daily_stats
+        selected: true
+
+scheduleType: cron
+scheduleData:
+  cron:
+    cronExpression: "0 7 * * *"
+    cronTimeZone: UTC
+
+namespaceDefinition: destination
+namespaceFormat: raw
+prefix: ""
+
+resourceRequirements:
+  cpu_request: "0.5"
+  cpu_limit: "1"
+  memory_request: "512Mi"
+  memory_limit: "1Gi"

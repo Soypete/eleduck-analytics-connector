@@ -1,0 +1,32 @@
+version: 2
+
+seeds:
+  - name: seed_content_mapping
+    description: >
+      Manual mapping between Transistor episode IDs and YouTube video IDs.
+      This allows tracking the same content piece across multiple platforms.
+
+      To add a mapping, add a row with:
+      - content_id: A unique identifier for the content (e.g., 'ep-001')
+      - episode_id: The Transistor episode ID
+      - video_id: The YouTube video ID
+
+      Example:
+        content_id,episode_id,video_id
+        ep-001,abc123,dQw4w9WgXcQ
+        ep-002,def456,xvFZjo5PgG0
+    config:
+      column_types:
+        content_id: varchar
+        episode_id: varchar
+        video_id: varchar
+    columns:
+      - name: content_id
+        description: "Unique identifier for unified content"
+        tests:
+          - unique
+          - not_null
+      - name: episode_id
+        description: "Transistor episode ID"
+      - name: video_id
+        description: "YouTube video ID"

@@ -1,0 +1,88 @@
+# Airbyte Source Configuration for YouTube Analytics
+# Uses the official Airbyte YouTube Analytics connector
+#
+# Prerequisites:
+# 1. Create OAuth2 credentials in Google Cloud Console
+# 2. Enable YouTube Analytics API and YouTube Data API v3
+# 3. Configure OAuth2 consent screen
+# 4. Store credentials in 1Password (see k8s/1password/onepassworditem-youtube.yaml)
+
+sourceDefinitionId: youtube-analytics
+name: YouTube Analytics - SoypeteTech Channel
+connectionConfiguration:
+  # OAuth2 credentials - injected from 1Password
+  credentials:
+    client_id: "${YOUTUBE_CLIENT_ID}"
+    client_secret: "${YOUTUBE_CLIENT_SECRET}"
+    refresh_token: "${YOUTUBE_REFRESH_TOKEN}"
+
+  # Channel configuration
+  channel_id: "${YOUTUBE_CHANNEL_ID}"
+
+  # Date range for historical data
+  start_date: "2020-01-01"
+
+streams:
+  - name: videos
+    sync_mode: full_refresh
+    destination_sync_mode: overwrite
+    cursor_field: []
+    primary_key:
+      - id
+    json_schema:
+      type: object
+      properties:
+        id:
+          type: string
+        snippet:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            publishedAt:
+              type: string
+              format: date-time
+            channelId:
+              type: string
+            channelTitle:
+              type: string
+        contentDetails:
+          type: object
+          properties:
+            duration:
+              type: string
+            definition:
+              type: string
+
+  - name: daily_stats
+    sync_mode: incremental
+    destination_sync_mode: append
+    cursor_field:
+      - date
+    primary_key:
+      - video_id
+      - date
+    json_schema:
+      type: object
+      properties:
+        video_id:
+          type: string
+        date:
+          type: string
+          format: date
+        views:
+          type: integer
+        watch_time_minutes:
+          type: number
+        average_view_duration:
+          type: number
+        likes:
+          type: integer
+        comments:
+          type: integer
+
+schedule:
+  scheduleType: cron
+  cronExpression: "0 7 * * *"  # Daily at 7 AM UTC (after Spotify sync)

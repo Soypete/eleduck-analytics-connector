@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: airbyte-server
+  namespace: eleduck-analytics
+  labels:
+    app: airbyte
+    app.kubernetes.io/name: airbyte
+    app.kubernetes.io/component: server
+spec:
+  type: ClusterIP
+  selector:
+    app: airbyte
+    component: server
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airbyte-webapp
+  namespace: eleduck-analytics
+  labels:
+    app: airbyte
+    app.kubernetes.io/name: airbyte
+    app.kubernetes.io/component: webapp
+spec:
+  type: ClusterIP
+  selector:
+    app: airbyte
+    component: webapp
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

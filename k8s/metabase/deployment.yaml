@@ -6,7 +6,7 @@ metadata:
   labels:
     app: metabase
     app.kubernetes.io/name: metabase
-    app.kubernetes.io/component: visualization
+    app.kubernetes.io/component: analytics
     app.kubernetes.io/part-of: eleduck-analytics-stack
 spec:
   replicas: 1
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: metabase
-          image: metabase/metabase:latest
+          image: metabase/metabase:v0.50.0
           ports:
             - containerPort: 3000
               name: http
@@ -47,31 +47,37 @@ spec:
                   name: postgres-credentials
                   key: password
 
+            # Site settings
+            - name: MB_SITE_NAME
+              value: "SoypeteTech Analytics"
+            - name: MB_SITE_URL
+              value: "http://localhost:3000"
+            - name: MB_ANON_TRACKING_ENABLED
+              value: "false"
+
             # Jetty configuration
             - name: MB_JETTY_PORT
               value: "3000"
             - name: MB_JETTY_HOST
               value: "0.0.0.0"
 
-            # Disable telemetry
-            - name: MB_ANON_TRACKING_ENABLED
-              value: "false"
-
-            # Site settings
-            - name: MB_SITE_NAME
-              value: "SoypeteTech Analytics"
+            # Performance settings
+            - name: JAVA_OPTS
+              value: "-Xmx2g"
 
             # Timezone
             - name: JAVA_TIMEZONE
               value: "America/Denver"
+            - name: MB_REPORT_TIMEZONE
+              value: "UTC"
 
           resources:
             requests:
               memory: "1Gi"
               cpu: "500m"
             limits:
-              memory: "2Gi"
-              cpu: "1"
+              memory: "3Gi"
+              cpu: "2"
 
           livenessProbe:
             httpGet:

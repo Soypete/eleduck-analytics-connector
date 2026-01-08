@@ -1,0 +1,247 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbyte-server
+  namespace: eleduck-analytics
+  labels:
+    app: airbyte
+    app.kubernetes.io/name: airbyte
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: eleduck-analytics-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airbyte
+      component: server
+  template:
+    metadata:
+      labels:
+        app: airbyte
+        component: server
+    spec:
+      serviceAccountName: airbyte
+      containers:
+        - name: airbyte-server
+          image: airbyte/server:0.63.0
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: AIRBYTE_VERSION
+              value: "0.63.0"
+            - name: DATABASE_URL
+              value: "jdbc:postgresql://postgres:5432/airbyte_internal"
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: CONFIG_ROOT
+              value: /config
+            - name: WORKSPACE_ROOT
+              value: /workspace
+            - name: TRACKING_STRATEGY
+              value: logging
+            - name: LOG_LEVEL
+              value: INFO
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+          volumeMounts:
+            - name: airbyte-config
+              mountPath: /config
+            - name: airbyte-workspace
+              mountPath: /workspace
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8001
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: airbyte-config
+          persistentVolumeClaim:
+            claimName: airbyte-config
+        - name: airbyte-workspace
+          persistentVolumeClaim:
+            claimName: airbyte-workspace
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbyte-worker
+  namespace: eleduck-analytics
+  labels:
+    app: airbyte
+    app.kubernetes.io/name: airbyte
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: eleduck-analytics-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airbyte
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: airbyte
+        component: worker
+    spec:
+      serviceAccountName: airbyte
+      containers:
+        - name: airbyte-worker
+          image: airbyte/worker:0.63.0
+          env:
+            - name: AIRBYTE_VERSION
+              value: "0.63.0"
+            - name: DATABASE_URL
+              value: "jdbc:postgresql://postgres:5432/airbyte_internal"
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: CONFIG_ROOT
+              value: /config
+            - name: WORKSPACE_ROOT
+              value: /workspace
+            - name: LOG_LEVEL
+              value: INFO
+            # Spotify credentials
+            - name: SPOTIFY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: spotify-credentials
+                  key: client_id
+            - name: SPOTIFY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: spotify-credentials
+                  key: client_secret
+            - name: SPOTIFY_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: spotify-credentials
+                  key: refresh_token
+            - name: SPOTIFY_SHOW_ID
+              valueFrom:
+                secretKeyRef:
+                  name: spotify-credentials
+                  key: show_id
+            # YouTube credentials
+            - name: YOUTUBE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-credentials
+                  key: client_id
+            - name: YOUTUBE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-credentials
+                  key: client_secret
+            - name: YOUTUBE_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-credentials
+                  key: refresh_token
+            - name: YOUTUBE_CHANNEL_ID
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-credentials
+                  key: channel_id
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          volumeMounts:
+            - name: airbyte-config
+              mountPath: /config
+            - name: airbyte-workspace
+              mountPath: /workspace
+      volumes:
+        - name: airbyte-config
+          persistentVolumeClaim:
+            claimName: airbyte-config
+        - name: airbyte-workspace
+          persistentVolumeClaim:
+            claimName: airbyte-workspace
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbyte-webapp
+  namespace: eleduck-analytics
+  labels:
+    app: airbyte
+    app.kubernetes.io/name: airbyte
+    app.kubernetes.io/component: webapp
+    app.kubernetes.io/part-of: eleduck-analytics-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airbyte
+      component: webapp
+  template:
+    metadata:
+      labels:
+        app: airbyte
+        component: webapp
+    spec:
+      containers:
+        - name: airbyte-webapp
+          image: airbyte/webapp:0.63.0
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: AIRBYTE_VERSION
+              value: "0.63.0"
+            - name: API_URL
+              value: "http://airbyte-server:8001/api"
+            - name: INTERNAL_API_HOST
+              value: "airbyte-server:8001"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10

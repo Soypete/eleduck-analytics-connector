@@ -1,0 +1,98 @@
+version: 2
+
+sources:
+  - name: raw_spotify
+    description: "Raw data from Spotify for Creators (formerly Spotify for Podcasters) via Airbyte"
+    database: "{{ env_var('DBT_POSTGRES_DATABASE', 'eleduck') }}"
+    schema: raw
+    tables:
+      - name: spotify_episodes
+        description: "Episode metadata from Spotify for Creators API"
+        columns:
+          - name: id
+            description: "Unique Spotify episode URI/ID"
+            tests:
+              - unique
+              - not_null
+          - name: name
+            description: "Episode title"
+          - name: release_date
+            description: "Episode release date"
+          - name: duration_ms
+            description: "Duration in milliseconds"
+          - name: description
+            description: "Episode description"
+
+      - name: spotify_episode_performance
+        description: "Daily performance metrics per episode from Spotify Analytics"
+        columns:
+          - name: episode_id
+            description: "Foreign key to spotify_episodes"
+            tests:
+              - not_null
+          - name: date
+            description: "Date of the metric"
+            tests:
+              - not_null
+          - name: starts
+            description: "Number of times episode was started"
+          - name: streams
+            description: "Number of streams (plays over 60 seconds)"
+          - name: listeners
+            description: "Unique listeners count"
+          - name: avg_listen_seconds
+            description: "Average listen time in seconds"
+
+      - name: spotify_show_stats
+        description: "Show-level aggregate statistics from Spotify"
+        columns:
+          - name: date
+            description: "Date of the stats snapshot"
+            tests:
+              - not_null
+          - name: total_streams
+            description: "Cumulative total streams"
+          - name: followers
+            description: "Current follower count"
+          - name: total_listeners
+            description: "Cumulative unique listeners"
+
+  - name: raw_youtube
+    description: "Raw data from YouTube Analytics and Data APIs via Airbyte"
+    database: "{{ env_var('DBT_POSTGRES_DATABASE', 'eleduck') }}"
+    schema: raw
+    tables:
+      - name: youtube_videos
+        description: "Video metadata from YouTube Data API videos.list"
+        columns:
+          - name: id
+            description: "YouTube video ID"
+            tests:
+              - unique
+              - not_null
+          - name: snippet
+            description: "JSONB containing video snippet (title, description, publishedAt)"
+          - name: content_details
+            description: "JSONB containing content details (duration, dimension)"
+
+      - name: youtube_daily_stats
+        description: "Daily video metrics from YouTube Analytics API"
+        columns:
+          - name: video_id
+            description: "Foreign key to youtube_videos"
+            tests:
+              - not_null
+          - name: date
+            description: "Date of the metric"
+            tests:
+              - not_null
+          - name: views
+            description: "Number of views on this date"
+          - name: watch_time_minutes
+            description: "Total watch time in minutes"
+          - name: average_view_duration
+            description: "Average view duration in seconds"
+          - name: likes
+            description: "Number of likes"
+          - name: comments
+            description: "Number of comments"

@@ -1,0 +1,38 @@
+name: 'podcast_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'podcast_analytics'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  podcast_analytics:
+    staging:
+      +schema: staging
+      +materialized: view
+      spotify:
+        +tags: ['spotify', 'staging']
+      youtube:
+        +tags: ['youtube', 'staging']
+    intermediate:
+      +schema: staging
+      +materialized: view
+      +tags: ['intermediate']
+    marts:
+      +schema: analytics
+      +materialized: table
+      +tags: ['marts']
+
+seeds:
+  podcast_analytics:
+    +schema: staging

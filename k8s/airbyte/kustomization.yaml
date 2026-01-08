@@ -16,3 +16,7 @@ configMapGenerator:
       - AIRBYTE_DESTINATION_PORT=5432
       - AIRBYTE_DESTINATION_DATABASE=analytics
       - AIRBYTE_DESTINATION_SCHEMA=raw
+
+commonLabels:
+  app.kubernetes.io/part-of: eleduck-analytics-stack
+  app.kubernetes.io/managed-by: kustomize

@@ -1,0 +1,111 @@
+version: 2
+
+models:
+  - name: mart_content_performance
+    description: >
+      Content-level performance aggregations combining Spotify and YouTube metrics.
+      Each row represents a unique content piece with total metrics across platforms.
+    columns:
+      - name: content_id
+        description: "Unique identifier for the content"
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "Content title"
+      - name: published_date
+        description: "Publication date"
+      - name: duration_seconds
+        description: "Content duration in seconds"
+      - name: content_source
+        description: "Platform availability indicator"
+      - name: episode_id
+        description: "Spotify episode ID"
+      - name: video_id
+        description: "YouTube video ID"
+      - name: total_streams
+        description: "Total Spotify streams"
+      - name: total_starts
+        description: "Total Spotify episode starts"
+      - name: total_unique_listeners
+        description: "Total unique Spotify listeners"
+      - name: avg_listen_seconds
+        description: "Average listen time on Spotify"
+      - name: total_views
+        description: "Total YouTube views"
+      - name: total_watch_minutes
+        description: "Total YouTube watch time in minutes"
+      - name: total_likes
+        description: "Total YouTube likes"
+      - name: total_comments
+        description: "Total YouTube comments"
+      - name: avg_view_seconds
+        description: "Average view duration on YouTube"
+      - name: total_consumption
+        description: "Combined streams + views across platforms"
+      - name: youtube_like_rate
+        description: "Likes per view on YouTube"
+      - name: spotify_completion_rate
+        description: "Streams per start on Spotify"
+
+  - name: mart_daily_metrics
+    description: >
+      Daily time-series metrics for trend analysis and dashboards.
+      One row per day with aggregated metrics from both platforms.
+    columns:
+      - name: metric_date
+        description: "Date of the metrics"
+        tests:
+          - unique
+          - not_null
+      - name: spotify_streams
+        description: "Total Spotify streams on this date"
+      - name: spotify_starts
+        description: "Total Spotify starts on this date"
+      - name: spotify_listeners
+        description: "Unique Spotify listeners on this date"
+      - name: youtube_views
+        description: "Total YouTube views on this date"
+      - name: youtube_watch_minutes
+        description: "Total YouTube watch time in minutes"
+      - name: youtube_likes
+        description: "YouTube likes on this date"
+      - name: youtube_comments
+        description: "YouTube comments on this date"
+      - name: total_consumption
+        description: "Combined streams + views"
+      - name: day_of_week
+        description: "Day of week number (0=Sunday)"
+      - name: day_name
+        description: "Day of week name"
+
+  - name: mart_platform_comparison
+    description: >
+      Platform-level summary for comparing Spotify vs YouTube performance.
+      One row per platform with aggregate metrics.
+    columns:
+      - name: platform
+        description: "Platform name (spotify or youtube)"
+        tests:
+          - unique
+          - not_null
+          - accepted_values:
+              values: ['spotify', 'youtube']
+      - name: total_consumption
+        description: "Total streams/views for the platform"
+      - name: total_starts
+        description: "Total starts (Spotify only)"
+      - name: total_reach
+        description: "Total unique listeners/viewers"
+      - name: content_count
+        description: "Number of content pieces"
+      - name: first_date
+        description: "First date with metrics"
+      - name: last_date
+        description: "Most recent date with metrics"
+      - name: days_active
+        description: "Number of days with activity"
+      - name: avg_daily_consumption
+        description: "Average daily streams/views"
+      - name: followers
+        description: "Follower count (Spotify only)"

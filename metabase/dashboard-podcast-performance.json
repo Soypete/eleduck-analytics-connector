@@ -1,0 +1,269 @@
+{
+  "name": "Podcast Performance",
+  "description": "SoypeteTech podcast analytics across Spotify and YouTube",
+  "parameters": [
+    {
+      "name": "Date Range",
+      "slug": "date_range",
+      "id": "date_range",
+      "type": "date/range",
+      "default": "past30days"
+    }
+  ],
+  "cards": [
+    {
+      "id": 1,
+      "name": "Total Streams (Spotify)",
+      "description": "Total podcast streams on Spotify",
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.field": "total_streams",
+        "scalar.suffix": " streams"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT SUM(total_streams) as total_streams FROM analytics.mart_content_performance",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 0,
+        "sizeX": 4,
+        "sizeY": 3
+      }
+    },
+    {
+      "id": 2,
+      "name": "Total Views (YouTube)",
+      "description": "Total video views on YouTube",
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.field": "total_views",
+        "scalar.suffix": " views"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT SUM(total_views) as total_views FROM analytics.mart_content_performance",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 4,
+        "sizeX": 4,
+        "sizeY": 3
+      }
+    },
+    {
+      "id": 3,
+      "name": "Streams (30d)",
+      "description": "Spotify streams in the last 30 days with trend",
+      "display": "smartscalar",
+      "visualization_settings": {
+        "scalar.field": "streams",
+        "scalar.comparisons": [
+          {
+            "type": "periodsAgo",
+            "value": 1
+          }
+        ]
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT SUM(spotify_streams) as streams FROM analytics.mart_daily_metrics WHERE metric_date >= CURRENT_DATE - INTERVAL '30 days'",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 8,
+        "sizeX": 4,
+        "sizeY": 3
+      }
+    },
+    {
+      "id": 4,
+      "name": "Views (30d)",
+      "description": "YouTube views in the last 30 days with trend",
+      "display": "smartscalar",
+      "visualization_settings": {
+        "scalar.field": "views",
+        "scalar.comparisons": [
+          {
+            "type": "periodsAgo",
+            "value": 1
+          }
+        ]
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT SUM(youtube_views) as views FROM analytics.mart_daily_metrics WHERE metric_date >= CURRENT_DATE - INTERVAL '30 days'",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 0,
+        "col": 12,
+        "sizeX": 4,
+        "sizeY": 3
+      }
+    },
+    {
+      "id": 5,
+      "name": "Daily Trend",
+      "description": "Daily streams and views over time",
+      "display": "line",
+      "visualization_settings": {
+        "graph.dimensions": ["metric_date"],
+        "graph.metrics": ["spotify_streams", "youtube_views"],
+        "graph.x_axis.title_text": "Date",
+        "graph.y_axis.title_text": "Count",
+        "graph.colors": ["#1DB954", "#FF0000"],
+        "graph.show_values": false,
+        "graph.label_value_formatting": "compact"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT metric_date, spotify_streams, youtube_views FROM analytics.mart_daily_metrics WHERE metric_date >= CURRENT_DATE - INTERVAL '90 days' ORDER BY metric_date",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 3,
+        "col": 0,
+        "sizeX": 18,
+        "sizeY": 6
+      }
+    },
+    {
+      "id": 6,
+      "name": "Top Episodes by Streams",
+      "description": "Top 10 episodes by Spotify streams",
+      "display": "row",
+      "visualization_settings": {
+        "graph.dimensions": ["title"],
+        "graph.metrics": ["total_streams"],
+        "graph.colors": ["#1DB954"],
+        "graph.x_axis.title_text": "Streams"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT title, total_streams FROM analytics.mart_content_performance WHERE total_streams > 0 ORDER BY total_streams DESC LIMIT 10",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 9,
+        "col": 0,
+        "sizeX": 9,
+        "sizeY": 6
+      }
+    },
+    {
+      "id": 7,
+      "name": "Top Videos by Views",
+      "description": "Top 10 videos by YouTube views",
+      "display": "row",
+      "visualization_settings": {
+        "graph.dimensions": ["title"],
+        "graph.metrics": ["total_views"],
+        "graph.colors": ["#FF0000"],
+        "graph.x_axis.title_text": "Views"
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT title, total_views FROM analytics.mart_content_performance WHERE total_views > 0 ORDER BY total_views DESC LIMIT 10",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 9,
+        "col": 9,
+        "sizeX": 9,
+        "sizeY": 6
+      }
+    },
+    {
+      "id": 8,
+      "name": "Platform Comparison",
+      "description": "Total consumption by platform",
+      "display": "pie",
+      "visualization_settings": {
+        "pie.dimension": "platform",
+        "pie.metric": "total_consumption",
+        "pie.colors": {
+          "spotify": "#1DB954",
+          "youtube": "#FF0000"
+        },
+        "pie.show_legend": true,
+        "pie.show_total": true
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT platform, total_consumption FROM analytics.mart_platform_comparison",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 15,
+        "col": 0,
+        "sizeX": 6,
+        "sizeY": 6
+      }
+    },
+    {
+      "id": 9,
+      "name": "Content Performance Table",
+      "description": "All content with performance metrics",
+      "display": "table",
+      "visualization_settings": {
+        "table.pivot": false,
+        "table.columns": [
+          {"name": "title", "enabled": true},
+          {"name": "published_date", "enabled": true},
+          {"name": "content_source", "enabled": true},
+          {"name": "total_streams", "enabled": true},
+          {"name": "total_views", "enabled": true},
+          {"name": "total_consumption", "enabled": true}
+        ],
+        "table.cell_column": "total_consumption",
+        "column_settings": {
+          "[\"name\",\"total_streams\"]": {"number_style": "decimal"},
+          "[\"name\",\"total_views\"]": {"number_style": "decimal"},
+          "[\"name\",\"total_consumption\"]": {"number_style": "decimal"}
+        }
+      },
+      "dataset_query": {
+        "type": "native",
+        "native": {
+          "query": "SELECT title, published_date, content_source, total_streams, total_views, total_consumption FROM analytics.mart_content_performance ORDER BY total_consumption DESC",
+          "template-tags": {}
+        },
+        "database": 1
+      },
+      "position": {
+        "row": 15,
+        "col": 6,
+        "sizeX": 12,
+        "sizeY": 6
+      }
+    }
+  ]
+}
