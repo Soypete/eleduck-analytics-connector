@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: stg_youtube__videos
+    description: "Staging model for YouTube video metadata"
+    columns:
+      - name: video_id
+        description: "Unique YouTube video identifier"
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "Video title"
+        tests:
+          - not_null
+      - name: published_date
+        description: "Date the video was published"
+        tests:
+          - not_null
+      - name: description
+        description: "Video description text"
+      - name: channel_id
+        description: "YouTube channel ID"
+      - name: channel_title
+        description: "YouTube channel name"
+      - name: duration_seconds
+        description: "Duration of the video in seconds"
+      - name: video_definition
+        description: "Video quality definition (hd, sd)"
+
+  - name: stg_youtube__daily_stats
+    description: "Staging model for daily YouTube video metrics"
+    columns:
+      - name: video_id
+        description: "YouTube video identifier"
+        tests:
+          - not_null
+      - name: metric_date
+        description: "Date of the metrics"
+        tests:
+          - not_null
+      - name: views
+        description: "Number of views on this date"
+        tests:
+          - not_null
+      - name: watch_time_minutes
+        description: "Total watch time in minutes"
+      - name: avg_view_seconds
+        description: "Average view duration in seconds"
+      - name: likes
+        description: "Number of likes"
+      - name: comments
+        description: "Number of comments"
+      - name: minutes_per_view
+        description: "Calculated average minutes watched per view"

@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: int_content_unified
+    description: >
+      Unified content model that joins Spotify episodes with YouTube videos
+      using the manual content mapping seed. This creates a single view of content
+      across both platforms for downstream analytics.
+    columns:
+      - name: content_id
+        description: "Unique identifier for the content piece across platforms"
+        tests:
+          - unique
+          - not_null
+      - name: episode_id
+        description: "Spotify episode ID (null if YouTube-only content)"
+      - name: video_id
+        description: "YouTube video ID (null if Spotify-only content)"
+      - name: title
+        description: "Content title (from Spotify if available, otherwise YouTube)"
+        tests:
+          - not_null
+      - name: published_date
+        description: "Publication date (earliest if different across platforms)"
+        tests:
+          - not_null
+      - name: duration_seconds
+        description: "Content duration in seconds"
+      - name: content_source
+        description: "Indicates platform availability: 'both_platforms', 'spotify_only', or 'youtube_only'"
+        tests:
+          - accepted_values:
+              values: ['both_platforms', 'spotify_only', 'youtube_only']

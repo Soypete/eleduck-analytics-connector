@@ -1,0 +1,105 @@
+# Airbyte Source Configuration for Spotify for Creators
+# Note: Spotify for Creators uses OAuth2 authentication
+#
+# Prerequisites:
+# 1. Register an app at https://developer.spotify.com/dashboard
+# 2. Configure OAuth2 redirect URI
+# 3. Request access to Spotify for Creators API (requires approval)
+# 4. Store credentials in 1Password (see k8s/1password/onepassworditem-spotify.yaml)
+
+sourceDefinitionId: custom-spotify-for-creators
+name: Spotify for Creators - SoypeteTech Podcast
+connectionConfiguration:
+  # OAuth2 credentials - injected from 1Password
+  client_id: "${SPOTIFY_CLIENT_ID}"
+  client_secret: "${SPOTIFY_CLIENT_SECRET}"
+  refresh_token: "${SPOTIFY_REFRESH_TOKEN}"
+
+  # Show configuration
+  show_id: "${SPOTIFY_SHOW_ID}"
+
+  # Date range for historical data
+  start_date: "2020-01-01"
+
+  # API configuration
+  api_base_url: "https://generic.wg.spotify.com/podcasters"
+
+streams:
+  - name: episodes
+    sync_mode: full_refresh
+    destination_sync_mode: overwrite
+    cursor_field: []
+    primary_key:
+      - id
+    json_schema:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        release_date:
+          type: string
+          format: date
+        duration_ms:
+          type: integer
+        explicit:
+          type: boolean
+        uri:
+          type: string
+        external_urls:
+          type: object
+          properties:
+            spotify:
+              type: string
+
+  - name: episode_performance
+    sync_mode: incremental
+    destination_sync_mode: append
+    cursor_field:
+      - date
+    primary_key:
+      - episode_id
+      - date
+    json_schema:
+      type: object
+      properties:
+        episode_id:
+          type: string
+        date:
+          type: string
+          format: date
+        starts:
+          type: integer
+        streams:
+          type: integer
+        listeners:
+          type: integer
+        avg_listen_seconds:
+          type: number
+
+  - name: show_stats
+    sync_mode: incremental
+    destination_sync_mode: append
+    cursor_field:
+      - date
+    primary_key:
+      - date
+    json_schema:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        total_streams:
+          type: integer
+        followers:
+          type: integer
+        total_listeners:
+          type: integer
+
+schedule:
+  scheduleType: cron
+  cronExpression: "0 6 * * *"  # Daily at 6 AM UTC

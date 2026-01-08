@@ -1,0 +1,86 @@
+# Airbyte Connection: Spotify for Creators → PostgreSQL
+# Syncs podcast data from Spotify to raw schema
+
+name: Spotify to PostgreSQL
+sourceId: spotify-for-creators
+destinationId: postgres-duckdb
+
+status: active
+
+syncCatalog:
+  streams:
+    - stream:
+        name: episodes
+        namespace: spotify
+        jsonSchema: {}
+        supportedSyncModes:
+          - full_refresh
+        sourceDefinedPrimaryKey:
+          - - id
+      config:
+        syncMode: full_refresh
+        destinationSyncMode: overwrite
+        primaryKey:
+          - - id
+        aliasName: spotify_episodes
+        selected: true
+
+    - stream:
+        name: episode_performance
+        namespace: spotify
+        jsonSchema: {}
+        supportedSyncModes:
+          - incremental
+        sourceDefinedCursor: true
+        defaultCursorField:
+          - date
+        sourceDefinedPrimaryKey:
+          - - episode_id
+          - - date
+      config:
+        syncMode: incremental
+        destinationSyncMode: append
+        cursorField:
+          - date
+        primaryKey:
+          - - episode_id
+          - - date
+        aliasName: spotify_episode_performance
+        selected: true
+
+    - stream:
+        name: show_stats
+        namespace: spotify
+        jsonSchema: {}
+        supportedSyncModes:
+          - incremental
+        sourceDefinedCursor: true
+        defaultCursorField:
+          - date
+        sourceDefinedPrimaryKey:
+          - - date
+      config:
+        syncMode: incremental
+        destinationSyncMode: append
+        cursorField:
+          - date
+        primaryKey:
+          - - date
+        aliasName: spotify_show_stats
+        selected: true
+
+scheduleType: cron
+scheduleData:
+  cron:
+    cronExpression: "0 6 * * *"
+    cronTimeZone: UTC
+
+namespaceDefinition: destination
+namespaceFormat: raw
+prefix: ""
+
+resourceRequirements:
+  cpu_request: "0.5"
+  cpu_limit: "1"
+  memory_request: "512Mi"
+  memory_limit: "1Gi"
