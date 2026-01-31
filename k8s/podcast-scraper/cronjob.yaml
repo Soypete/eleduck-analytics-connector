@@ -1,0 +1,109 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: podcast-metrics-scraper
+  namespace: eleduck-analytics
+spec:
+  # Run daily at 2 AM UTC
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: podcast-scraper
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: podcast-scraper
+            image: ghcr.io/soypete/podcast-scraper:latest
+            imagePullPolicy: Always
+            env:
+            - name: RUN_MODE
+              value: "once"
+            - name: SHOW_NAME
+              value: "domesticating ai"
+            - name: LOOKBACK_DAYS
+              value: "7"
+
+            # Database connection
+            - name: DB_HOST
+              value: "postgres-service.eleduck-analytics.svc.cluster.local"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "analytics"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: DB_SSL_MODE
+              value: "disable"
+
+            # Apple Podcasts credentials
+            - name: APPLE_PODCASTS_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: apple_email
+                  optional: true
+            - name: APPLE_PODCASTS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: apple_password
+                  optional: true
+
+            # Spotify credentials
+            - name: SPOTIFY_SP_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: spotify_sp_cookie
+                  optional: true
+            - name: SPOTIFY_SP_KEY_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: spotify_sp_key_cookie
+                  optional: true
+
+            # Amazon Music credentials
+            - name: AMAZON_SESSION_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: amazon_session_cookie
+                  optional: true
+
+            # YouTube credentials
+            - name: YOUTUBE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: youtube_api_key
+                  optional: true
+            - name: YOUTUBE_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: podcast-scraper-credentials
+                  key: youtube_access_token
+                  optional: true
+
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "128Mi"
+              limits:
+                cpu: "500m"
+                memory: "512Mi"

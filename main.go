@@ -1,16 +1,11 @@
 package main
 
-import "fmt"
-
-package main
-
 import (
-	"context"
 	"database/sql"
 	"embed"
-	"fmt"
 	"net/url"
 
+	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 )
 
