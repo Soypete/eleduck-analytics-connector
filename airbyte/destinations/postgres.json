@@ -1,0 +1,21 @@
+{
+  "destinationType": "postgres",
+  "name": "dest_postgres_raw",
+  "config": {
+    "host": "postgres.eleduck-analytics.svc.cluster.local",
+    "port": 5432,
+    "database": "analytics",
+    "schema": "raw",
+    "username": "${POSTGRES_USER}",
+    "password": "${POSTGRES_PASSWORD}",
+    "ssl_mode": {
+      "mode": "disable"
+    },
+    "tunnel_method": {
+      "tunnel_method": "NO_TUNNEL"
+    },
+    "raw_data_schema": "raw",
+    "default_normalization": true
+  },
+  "notes": "All sources write to this destination in the 'raw' schema."
+}

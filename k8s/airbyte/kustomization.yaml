@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: eleduck-analytics
+
+# Note: Airbyte is deployed via Helm, not kustomize directly
+# This kustomization handles supplementary resources
+
+resources:
+  - storage.yaml
+
+configMapGenerator:
+  - name: airbyte-config
+    literals:
+      - AIRBYTE_DESTINATION_HOST=postgres.eleduck-analytics.svc.cluster.local
+      - AIRBYTE_DESTINATION_PORT=5432
+      - AIRBYTE_DESTINATION_DATABASE=analytics
+      - AIRBYTE_DESTINATION_SCHEMA=raw
