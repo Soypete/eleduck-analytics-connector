@@ -1,0 +1,22 @@
+{
+  "sourceType": "notion",
+  "name": "src_notion",
+  "config": {
+    "credentials": {
+      "auth_type": "token",
+      "token": "${NOTION_API_TOKEN}"
+    },
+    "start_date": "2020-01-01T00:00:00Z"
+  },
+  "streams": [
+    "pages",
+    "databases",
+    "blocks",
+    "users"
+  ],
+  "syncSchedule": {
+    "scheduleType": "cron",
+    "cronExpression": "0 2 * * *"
+  },
+  "notes": "Integration needs access to relevant databases/pages."
+}

@@ -1,0 +1,20 @@
+{
+  "sourceType": "twitter",
+  "name": "src_twitter",
+  "config": {
+    "api_key": "${TWITTER_API_KEY}",
+    "api_secret": "${TWITTER_API_SECRET}",
+    "access_token": "${TWITTER_ACCESS_TOKEN}",
+    "access_token_secret": "${TWITTER_ACCESS_TOKEN_SECRET}"
+  },
+  "streams": [
+    "tweets",
+    "users",
+    "user_metrics"
+  ],
+  "syncSchedule": {
+    "scheduleType": "cron",
+    "cronExpression": "0 2 * * *"
+  },
+  "notes": "Twitter API access requires paid tier ($100/mo minimum). Consider X API alternatives."
+}
