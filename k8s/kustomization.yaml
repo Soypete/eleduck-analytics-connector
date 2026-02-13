@@ -5,6 +5,7 @@ namespace: eleduck-analytics
 
 resources:
   - namespace.yaml
+  # 1Password items
   - 1password/onepassworditem-postgres.yaml
   - 1password/onepassworditem-airbyte-youtube.yaml
   - 1password/onepassworditem-airbyte-twitch.yaml
@@ -15,3 +16,7 @@ resources:
   - 1password/onepassworditem-airbyte-notion.yaml
   - postgres/
   - airbyte/
+  - 1password/onepassworditem-metabase.yaml
+  # Infrastructure
+  - postgres/
+  - metabase/
