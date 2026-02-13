@@ -1,6 +1,7 @@
 .PHONY: help build-postgres push-postgres deploy destroy psql logs-postgres port-forward-postgres \
 	deploy-airbyte uninstall-airbyte port-forward-airbyte logs-airbyte-server logs-airbyte-worker airbyte-pods \
-	port-forward-metabase logs-metabase restart-metabase metabase-shell
+	port-forward-metabase logs-metabase restart-metabase metabase-shell \
+	build-sqlmesh push-sqlmesh sqlmesh-plan sqlmesh-run sqlmesh-audit sqlmesh-logs generate-dim-date
 
 NAMESPACE := eleduck-analytics
 POSTGRES_POD := $(shell kubectl get pods -n $(NAMESPACE) -l app=postgres -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
@@ -68,7 +69,7 @@ logs-airbyte-worker: ## Tail Airbyte worker logs
 
 airbyte-pods: ## List Airbyte pods
 	kubectl get pods -n $(NAMESPACE) -l app.kubernetes.io/name=airbyte
-=======
+
 # Metabase operations
 port-forward-metabase: ## Port forward Metabase to localhost:3000
 	@echo "Metabase available at http://localhost:3000"
@@ -82,4 +83,32 @@ restart-metabase: ## Restart Metabase deployment
 
 metabase-shell: ## Open shell in Metabase container
 	kubectl exec -it deploy/metabase -n $(NAMESPACE) -- /bin/sh
->>>>>>> 63fda1c (feat: add Metabase deployment for analytics visualization)
+
+# SQLMesh operations
+build-sqlmesh: ## Build SQLMesh Docker image
+	docker build -t ghcr.io/soypete/eleduck-sqlmesh:latest -f docker/sqlmesh/Dockerfile .
+
+push-sqlmesh: ## Push SQLMesh Docker image
+	docker push ghcr.io/soypete/eleduck-sqlmesh:latest
+
+sqlmesh-plan: ## Run sqlmesh plan via Kubernetes job
+	kubectl delete job sqlmesh-manual -n $(NAMESPACE) --ignore-not-found
+	kubectl apply -f k8s/sqlmesh/job-manual.yaml
+	kubectl wait --for=condition=complete job/sqlmesh-manual -n $(NAMESPACE) --timeout=600s
+	kubectl logs job/sqlmesh-manual -n $(NAMESPACE)
+
+sqlmesh-run: ## Run sqlmesh run via Kubernetes job
+	kubectl delete job sqlmesh-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/plan --auto-apply/run/' k8s/sqlmesh/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/sqlmesh-manual -n $(NAMESPACE) --timeout=600s
+
+sqlmesh-audit: ## Run sqlmesh audit via Kubernetes job
+	kubectl delete job sqlmesh-manual -n $(NAMESPACE) --ignore-not-found
+	sed 's/plan --auto-apply/audit/' k8s/sqlmesh/job-manual.yaml | kubectl apply -f -
+	kubectl wait --for=condition=complete job/sqlmesh-manual -n $(NAMESPACE) --timeout=300s
+
+sqlmesh-logs: ## View latest SQLMesh job logs
+	kubectl logs -l job-name=sqlmesh-manual -n $(NAMESPACE)
+
+generate-dim-date: ## Generate dim_date seed CSV
+	python scripts/generate_dim_date.py

@@ -14,9 +14,9 @@ resources:
   - 1password/onepassworditem-airbyte-github.yaml
   - 1password/onepassworditem-airbyte-stripe.yaml
   - 1password/onepassworditem-airbyte-notion.yaml
-  - postgres/
-  - airbyte/
   - 1password/onepassworditem-metabase.yaml
   # Infrastructure
   - postgres/
+  - airbyte/
   - metabase/
+  - sqlmesh/
