@@ -21,4 +21,18 @@ spec:
             name: {{ include "metabase.fullname" . }}
             port:
               number: {{ .Values.service.port }}
+  {{- if .Values.ingress.additionalHosts }}
+  {{- range .Values.ingress.additionalHosts }}
+  - host: {{ . }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "metabase.fullname" $ }}
+            port:
+              number: {{ $.Values.service.port }}
+  {{- end }}
+  {{- end }}
 {{- end }}
