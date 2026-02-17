@@ -1,0 +1,24 @@
+# Default values for sqlmesh subchart
+
+image:
+  repository: ghcr.io/soypete/eleduck-sqlmesh
+  tag: latest
+  pullPolicy: Always
+
+schedule: "0 6 * * *"  # Daily at 6am UTC
+
+database:
+  name: analytics
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 3
+backoffLimit: 2

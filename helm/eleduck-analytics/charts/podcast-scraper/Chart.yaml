@@ -1,0 +1,6 @@
+apiVersion: v2
+name: podcast-scraper
+description: Podcast metrics scraper CronJob
+type: application
+version: 0.1.0
+appVersion: "latest"

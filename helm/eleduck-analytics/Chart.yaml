@@ -1,0 +1,21 @@
+apiVersion: v2
+name: eleduck-analytics
+description: Analytics pipeline with Airbyte, Metabase, SQLMesh, and Podcast Scraper
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+dependencies:
+  - name: metabase
+    version: 0.1.0
+    condition: metabase.enabled
+  - name: sqlmesh
+    version: 0.1.0
+    condition: sqlmesh.enabled
+  - name: podcast-scraper
+    version: 0.1.0
+    condition: podcast-scraper.enabled
+
+maintainers:
+  - name: soypete
+    email: miriah.peterson@gmail.com

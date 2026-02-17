@@ -1,0 +1,51 @@
+# Foundry cluster-specific overrides
+# These values override the base values.yaml for deployment on the Foundry cluster
+
+global:
+  # Supabase database configuration
+  database:
+    host: db.xafzfaqyjeetonxelopw.supabase.co
+    port: 6543
+    sslMode: require
+    secretName: supabase-credentials  # Sealed secret to be created
+    secretUserKey: username
+    secretPasswordKey: password
+
+  # Ingress with Tailscale DNS
+  ingress:
+    enabled: true
+    className: contour
+    domain: catalyst.local
+
+  # Enable monitoring (Prometheus/Grafana already deployed)
+  monitoring:
+    enabled: true
+
+# Airbyte overrides for Supabase
+airbyte:
+  global:
+    database:
+      type: external
+      host: db.xafzfaqyjeetonxelopw.supabase.co
+      port: 6543
+      database: airbyte_internal
+      user: postgres
+      secretName: supabase-credentials
+      secretUserKey: username
+      secretPasswordKey: password
+
+# Metabase overrides
+metabase:
+  siteUrl: "https://analytics.catalyst.local"
+  persistence:
+    storageClass: longhorn  # Use Foundry's Longhorn storage
+
+# SQLMesh uses Supabase analytics database
+sqlmesh:
+  database:
+    name: analytics
+
+# Podcast Scraper uses Supabase analytics database
+podcast-scraper:
+  database:
+    name: analytics

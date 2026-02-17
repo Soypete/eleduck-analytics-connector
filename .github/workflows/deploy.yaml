@@ -1,0 +1,118 @@
+name: Deploy to Foundry Cluster
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'helm/**'
+      - '.github/workflows/deploy.yaml'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Load secrets from 1Password
+        uses: 1password/load-secrets-action@v2
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          SUPABASE_PASSWORD: op://pedro/POSTGRES_URL/password
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: '3.14.0'
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'v1.29.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+          kubectl cluster-info
+
+      - name: Verify namespace
+        run: |
+          kubectl get namespace eleduck-analytics || kubectl create namespace eleduck-analytics
+
+      - name: Create secrets from 1Password
+        run: |
+          # Create Supabase credentials secret
+          kubectl create secret generic supabase-credentials \
+            --from-literal=username=postgres \
+            --from-literal=password="${SUPABASE_PASSWORD}" \
+            -n eleduck-analytics \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          # Create GHCR pull secret
+          kubectl create secret docker-registry ghcr-pull-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.repository_owner }} \
+            --docker-password="${GITHUB_PAT}" \
+            -n eleduck-analytics \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          # Create podcast scraper credentials (empty for now, can add later via 1Password)
+          kubectl create secret generic podcast-scraper-credentials \
+            --from-literal=apple_email="" \
+            --from-literal=apple_password="" \
+            --from-literal=spotify_sp_cookie="" \
+            --from-literal=spotify_sp_key_cookie="" \
+            --from-literal=amazon_session_cookie="" \
+            --from-literal=youtube_api_key="" \
+            --from-literal=youtube_access_token="" \
+            -n eleduck-analytics \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Add Helm repos
+        run: |
+          helm repo add airbyte https://airbytehq.github.io/helm-charts
+          helm repo update
+
+      - name: Lint Helm chart
+        run: |
+          helm lint ./helm/eleduck-analytics
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install eleduck-analytics ./helm/eleduck-analytics \
+            -n eleduck-analytics \
+            --create-namespace \
+            -f ./helm/eleduck-analytics/values-foundry.yaml \
+            --wait \
+            --timeout 10m \
+            --atomic
+
+      - name: Verify deployment
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n eleduck-analytics
+
+          echo -e "\n=== Services ==="
+          kubectl get svc -n eleduck-analytics
+
+          echo -e "\n=== Ingress ==="
+          kubectl get ingress -n eleduck-analytics
+
+          echo -e "\n=== CronJobs ==="
+          kubectl get cronjobs -n eleduck-analytics
+
+      - name: Check pod health
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/instance=eleduck-analytics \
+            -n eleduck-analytics \
+            --timeout=300s || true

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: metabase
+description: Metabase analytics dashboard
+type: application
+version: 0.1.0
+appVersion: "0.50.0"

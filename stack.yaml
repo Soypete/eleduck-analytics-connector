@@ -1,0 +1,164 @@
+---
+# Foundry Stack Configuration for Eleduck Analytics
+# This file deploys the analytics pipeline to the Foundry cluster
+
+apiVersion: foundry.dev/v1
+kind: Stack
+metadata:
+  name: eleduck-analytics
+  namespace: eleduck-analytics
+
+spec:
+  # Helm chart deployment
+  charts:
+    - name: eleduck-analytics
+      namespace: eleduck-analytics
+      createNamespace: true
+      path: ./helm/eleduck-analytics
+
+      # Use Foundry-specific values with OpenBao secrets
+      values:
+        global:
+          namespace: eleduck-analytics
+
+          # Database configuration - secrets from OpenBao
+          database:
+            host: ${secret:eleduck-analytics/database:host}
+            port: 6543
+            sslMode: require
+            secretName: supabase-credentials
+            secretUserKey: username
+            secretPasswordKey: password
+
+          # Image registry configuration
+          imageRegistry: ghcr.io/soypete
+          imagePullSecrets:
+            - name: ghcr-pull-secret
+
+          # Ingress configuration
+          ingress:
+            enabled: true
+            className: contour
+            domain: catalyst.local
+            annotations:
+              projectcontour.io/response-timeout: "3600s"
+
+          # Enable monitoring
+          monitoring:
+            enabled: true
+
+        # Airbyte configuration
+        airbyte:
+          enabled: true
+          serviceAccount:
+            create: true
+            name: airbyte
+          global:
+            serviceAccountName: airbyte
+            deploymentMode: "oss"
+            edition: "community"
+            database:
+              type: external
+              host: ${secret:eleduck-analytics/database:host}
+              port: 6543
+              database: airbyte_internal
+              user: ${secret:eleduck-analytics/database:username}
+              secretName: supabase-credentials
+              secretUserKey: username
+              secretPasswordKey: password
+            storage:
+              type: local
+              storageClassName: longhorn
+              volumeSize: 100Gi
+          postgresql:
+            enabled: false
+          minio:
+            enabled: false
+          webapp:
+            replicaCount: 1
+          server:
+            replicaCount: 1
+          worker:
+            replicaCount: 1
+          temporal:
+            replicaCount: 1
+
+        # Metabase configuration
+        metabase:
+          enabled: true
+          siteUrl: "https://analytics.catalyst.local"
+          persistence:
+            storageClass: longhorn
+
+        # SQLMesh configuration
+        sqlmesh:
+          enabled: true
+          database:
+            name: analytics
+
+        # Podcast Scraper configuration
+        podcast-scraper:
+          enabled: true
+          database:
+            name: analytics
+
+  # Kubernetes secrets created from OpenBao
+  secrets:
+    - name: supabase-credentials
+      namespace: eleduck-analytics
+      data:
+        username: ${secret:eleduck-analytics/database:username}
+        password: ${secret:eleduck-analytics/database:password}
+        DATABASE_USER: ${secret:eleduck-analytics/database:username}
+        DATABASE_PASSWORD: ${secret:eleduck-analytics/database:password}
+
+    - name: ghcr-pull-secret
+      namespace: eleduck-analytics
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: |
+          {
+            "auths": {
+              "ghcr.io": {
+                "username": "soypete",
+                "password": "${secret:eleduck-analytics/github:token}"
+              }
+            }
+          }
+
+    - name: podcast-scraper-credentials
+      namespace: eleduck-analytics
+      data:
+        apple_email: ${secret:eleduck-analytics/podcast-scraper:apple_email}
+        apple_password: ${secret:eleduck-analytics/podcast-scraper:apple_password}
+        spotify_sp_cookie: ${secret:eleduck-analytics/podcast-scraper:spotify_sp_cookie}
+        spotify_sp_key_cookie: ${secret:eleduck-analytics/podcast-scraper:spotify_sp_key_cookie}
+        amazon_session_cookie: ${secret:eleduck-analytics/podcast-scraper:amazon_session_cookie}
+        youtube_api_key: ${secret:eleduck-analytics/podcast-scraper:youtube_api_key}
+        youtube_access_token: ${secret:eleduck-analytics/podcast-scraper:youtube_access_token}
+
+  # RBAC for Airbyte
+  rbac:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: airbyte-secrets-access
+        namespace: eleduck-analytics
+      rules:
+        - apiGroups: [""]
+          resources: ["secrets"]
+          verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+    - apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: airbyte-secrets-binding
+        namespace: eleduck-analytics
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: Role
+        name: airbyte-secrets-access
+      subjects:
+        - kind: ServiceAccount
+          name: airbyte
+          namespace: eleduck-analytics

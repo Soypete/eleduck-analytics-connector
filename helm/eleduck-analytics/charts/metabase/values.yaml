@@ -1,0 +1,36 @@
+# Default values for metabase subchart
+# These can be overridden by parent chart
+
+image:
+  repository: metabase/metabase
+  tag: v0.50.0
+  pullPolicy: IfNotPresent
+
+database:
+  name: metabase_app
+
+siteName: "SoypeteTech Analytics"
+siteUrl: "http://localhost:3000"
+timezone: "America/Denver"
+reportTimezone: "UTC"
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "3Gi"
+    cpu: "2"
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 10Gi
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  hostname: analytics

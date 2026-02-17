@@ -1,0 +1,77 @@
+# Zot Registry configuration for local development
+# Overrides for using local Zot registry at 100.81.89.62:5000
+
+# Secrets are managed outside of Helm via OpenBao
+# Run scripts/create-secrets-from-openbao.sh before deploying
+createSecrets:
+  enabled: false
+
+global:
+  # Use Zot registry instead of GHCR
+  imageRegistry: 100.81.89.62:5000/eleduck
+
+  # No pull secrets needed for local registry
+  imagePullSecrets: []
+
+  # Supabase database (direct connection)
+  database:
+    host: aws-0-us-west-1.pooler.supabase.com
+    port: 5432
+    sslMode: require
+    secretName: supabase-credentials
+    secretUserKey: DATABASE_USER
+    secretPasswordKey: DATABASE_PASSWORD
+
+  # MotherDuck for analytics workloads
+  motherduck:
+    enabled: true
+    secretName: motherduck-credentials
+    secretTokenKey: token
+    database: eleduck_analytics  # MotherDuck database name
+
+  # Ingress via Contour + Tailscale Magic DNS
+  ingress:
+    enabled: true
+    className: contour
+    domain: soypetetech.local
+
+  # Monitoring enabled
+  monitoring:
+    enabled: true
+
+# Metabase configuration
+metabase:
+  enabled: true
+  image:
+    tag: latest
+  siteUrl: "https://analytics.catalyst.local"
+  persistence:
+    storageClass: longhorn
+    size: 10Gi
+  # Add hostAliases to bypass DNS resolution issues
+  hostAliases:
+    - ip: "52.8.172.168"
+      hostnames:
+        - "aws-0-us-west-1.pooler.supabase.com"
+  # Metabase app database uses Supabase
+  # Analytics queries use MotherDuck (configured in Metabase UI)
+
+# SQLMesh configuration
+sqlmesh:
+  enabled: true
+  image:
+    repository: 100.81.89.62:5000/eleduck/sqlmesh
+    tag: latest
+  # SQLMesh uses MotherDuck for analytics transformations
+  motherduck:
+    enabled: true
+    database: eleduck_analytics
+
+# Podcast Scraper configuration
+podcast-scraper:
+  enabled: true
+  image:
+    repository: 100.81.89.62:5000/eleduck/podcast-scraper
+    tag: latest
+  database:
+    name: analytics

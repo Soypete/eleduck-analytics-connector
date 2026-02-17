@@ -115,13 +115,13 @@ func connectDatabase(config *Config) (*sql.DB, error) {
 		params := url.Values{}
 		params.Set("sslmode", getEnv("DB_SSL_MODE", "require"))
 
-		dbURL = url.URL{
+		dbURL = (&url.URL{
 			Scheme:   "postgresql",
 			User:     url.UserPassword(getEnv("DB_USER", "postgres"), getEnv("DB_PASSWORD", "")),
 			Host:     fmt.Sprintf("%s:%s", getEnv("DB_HOST", "localhost"), getEnv("DB_PORT", "5432")),
 			Path:     getEnv("DB_NAME", "analytics"),
 			RawQuery: params.Encode(),
-		}.String()
+		}).String()
 	}
 
 	db, err := sql.Open("postgres", dbURL)

@@ -1,0 +1,175 @@
+global:
+  namespace: eleduck-analytics
+
+  # Database configuration (will be overridden in values-foundry.yaml for Supabase)
+  database:
+    host: postgres.eleduck-analytics.svc.cluster.local
+    port: 5432
+    sslMode: disable
+    secretName: postgres-credentials
+    secretUserKey: username
+    secretPasswordKey: password
+
+  # Image registry configuration
+  imageRegistry: ghcr.io/soypete
+  imagePullSecrets:
+    - name: ghcr-pull-secret
+
+  # Ingress configuration
+  ingress:
+    enabled: true
+    className: contour
+    domain: catalyst.local
+    annotations:
+      projectcontour.io/response-timeout: "3600s"
+
+  # Monitoring
+  monitoring:
+    enabled: false
+
+# Airbyte configuration
+airbyte:
+  enabled: true
+  serviceAccount:
+    create: true
+    name: airbyte
+  global:
+    serviceAccountName: airbyte
+    deploymentMode: "oss"
+    edition: "community"
+    database:
+      type: external
+      host: postgres.eleduck-analytics.svc.cluster.local
+      port: 5432
+      database: airbyte_internal
+      user: postgres
+      secretName: postgres-credentials
+      secretUserKey: username
+      secretPasswordKey: password
+    storage:
+      type: local
+      storageClassName: longhorn
+      volumeSize: 100Gi
+  postgresql:
+    enabled: false
+  minio:
+    enabled: false
+
+  webapp:
+    replicaCount: 1
+    service:
+      type: ClusterIP
+      port: 80
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  server:
+    replicaCount: 1
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+  worker:
+    replicaCount: 1
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "1"
+  temporal:
+    replicaCount: 1
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+  airbyte-bootloader:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "250m"
+  connector-builder-server:
+    enabled: false
+  keycloak:
+    enabled: false
+  keycloak-setup:
+    enabled: false
+
+# Metabase configuration
+metabase:
+  enabled: true
+  image:
+    repository: metabase/metabase
+    tag: v0.50.0
+    pullPolicy: IfNotPresent
+  database:
+    name: metabase_app
+  siteName: "SoypeteTech Analytics"
+  siteUrl: "http://localhost:3000"
+  timezone: "America/Denver"
+  reportTimezone: "UTC"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "3Gi"
+      cpu: "2"
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 10Gi
+
+# SQLMesh configuration
+sqlmesh:
+  enabled: true
+  image:
+    repository: ghcr.io/soypete/eleduck-sqlmesh
+    tag: latest
+    pullPolicy: Always
+  schedule: "0 6 * * *"  # Daily at 6am UTC
+  database:
+    name: analytics
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+# Podcast Scraper configuration
+podcast-scraper:
+  enabled: true
+  image:
+    repository: ghcr.io/soypete/podcast-scraper
+    tag: latest
+    pullPolicy: Always
+  schedule: "0 2 * * *"  # Daily at 2am UTC
+  config:
+    runMode: "once"
+    showName: "domesticating ai"
+    lookbackDays: 7
+  database:
+    name: analytics
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"

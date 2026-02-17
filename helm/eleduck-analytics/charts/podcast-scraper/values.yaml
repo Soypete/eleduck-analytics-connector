@@ -1,0 +1,34 @@
+# Default values for podcast-scraper subchart
+
+image:
+  repository: ghcr.io/soypete/podcast-scraper
+  tag: latest
+  pullPolicy: Always
+
+schedule: "0 2 * * *"  # Daily at 2am UTC
+
+config:
+  runMode: "once"
+  showName: "domesticating ai"
+  lookbackDays: 7
+
+database:
+  name: analytics
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 3
+backoffLimit: 2
+
+# Secret name for podcast platform credentials
+# Should contain: apple_email, apple_password, spotify_sp_cookie, spotify_sp_key_cookie,
+# amazon_session_cookie, youtube_api_key, youtube_access_token
+credentialsSecretName: podcast-scraper-credentials
