@@ -1,0 +1,47 @@
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "sqlmesh.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define "sqlmesh.fullname" -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "sqlmesh-runner" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "sqlmesh.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "sqlmesh.labels" -}}
+helm.sh/chart: {{ include "sqlmesh.chart" . }}
+{{ include "sqlmesh.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: transformation
+app.kubernetes.io/part-of: eleduck-analytics-stack
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "sqlmesh.selectorLabels" -}}
+app: sqlmesh
+app.kubernetes.io/name: {{ include "sqlmesh.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

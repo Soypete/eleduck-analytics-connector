@@ -1,0 +1,109 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "podcast-scraper.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "podcast-scraper.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "podcast-scraper.selectorLabels" . | nindent 12 }}
+        spec:
+          {{- with .Values.global.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+          - name: podcast-scraper
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            env:
+            - name: RUN_MODE
+              value: {{ .Values.config.runMode | quote }}
+            - name: SHOW_NAME
+              value: {{ .Values.config.showName | quote }}
+            - name: LOOKBACK_DAYS
+              value: {{ .Values.config.lookbackDays | quote }}
+
+            # Database connection
+            - name: DB_HOST
+              value: {{ .Values.global.database.host }}
+            - name: DB_PORT
+              value: {{ .Values.global.database.port | quote }}
+            - name: DB_NAME
+              value: {{ .Values.database.name }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.database.secretName }}
+                  key: {{ .Values.global.database.secretUserKey }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.database.secretName }}
+                  key: {{ .Values.global.database.secretPasswordKey }}
+            - name: DB_SSL_MODE
+              value: {{ .Values.global.database.sslMode | quote }}
+
+            # Apple Podcasts credentials
+            - name: APPLE_PODCASTS_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: apple_email
+                  optional: true
+            - name: APPLE_PODCASTS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: apple_password
+                  optional: true
+
+            # Spotify credentials
+            - name: SPOTIFY_SP_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: spotify_sp_cookie
+                  optional: true
+            - name: SPOTIFY_SP_KEY_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: spotify_sp_key_cookie
+                  optional: true
+
+            # Amazon Music credentials
+            - name: AMAZON_SESSION_COOKIE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: amazon_session_cookie
+                  optional: true
+
+            # YouTube credentials
+            - name: YOUTUBE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: youtube_api_key
+                  optional: true
+            - name: YOUTUBE_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: youtube_access_token
+                  optional: true
+
+            resources:
+              {{- toYaml .Values.resources | nindent 14 }}

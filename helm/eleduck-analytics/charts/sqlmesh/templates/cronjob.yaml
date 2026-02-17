@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "sqlmesh.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "sqlmesh.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "sqlmesh.selectorLabels" . | nindent 12 }}
+        spec:
+          {{- with .Values.global.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: sqlmesh
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              args: ["plan", "--auto-apply", "--gateway", "prod"]
+              env:
+                # MotherDuck configuration for analytics output
+                - name: MOTHERDUCK_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.global.motherduck.secretName }}
+                      key: {{ .Values.global.motherduck.secretTokenKey }}
+                - name: MOTHERDUCK_DB_NAME
+                  value: {{ .Values.motherduck.database }}
+                # PostgreSQL configuration for reading podcast scraper data
+                - name: POSTGRES_HOST
+                  value: {{ .Values.global.database.host }}
+                - name: POSTGRES_PORT
+                  value: {{ .Values.global.database.port | quote }}
+                - name: POSTGRES_DB
+                  value: "analytics"
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.global.database.secretName }}
+                      key: {{ .Values.global.database.secretUserKey }}
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.global.database.secretName }}
+                      key: {{ .Values.global.database.secretPasswordKey }}
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+          restartPolicy: OnFailure

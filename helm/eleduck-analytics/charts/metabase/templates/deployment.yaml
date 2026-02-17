@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "metabase.fullname" . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "metabase.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "metabase.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        {{- include "metabase.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: metabase
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            # Application database (stores Metabase's own data)
+            - name: MB_DB_TYPE
+              value: postgres
+            - name: MB_DB_HOST
+              value: {{ .Values.global.database.host }}
+            - name: MB_DB_PORT
+              value: {{ .Values.global.database.port | quote }}
+            - name: MB_DB_DBNAME
+              value: {{ .Values.database.name }}
+            - name: MB_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.database.secretName }}
+                  key: {{ .Values.global.database.secretUserKey }}
+            - name: MB_DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.database.secretName }}
+                  key: {{ .Values.global.database.secretPasswordKey }}
+            {{- if eq .Values.global.database.sslMode "require" }}
+            - name: MB_DB_SSL
+              value: "true"
+            - name: MB_DB_SSL_MODE
+              value: "require"
+            {{- end }}
+
+            # Site settings
+            - name: MB_SITE_NAME
+              value: {{ .Values.siteName | quote }}
+            - name: MB_SITE_URL
+              value: {{ .Values.siteUrl | quote }}
+            - name: MB_ANON_TRACKING_ENABLED
+              value: "false"
+
+            # Jetty configuration
+            - name: MB_JETTY_PORT
+              value: "3000"
+            - name: MB_JETTY_HOST
+              value: "0.0.0.0"
+
+            # Performance settings
+            - name: JAVA_OPTS
+              value: "-Xmx2g"
+
+            # Timezone
+            - name: JAVA_TIMEZONE
+              value: {{ .Values.timezone | quote }}
+            - name: MB_REPORT_TIMEZONE
+              value: {{ .Values.reportTimezone | quote }}
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: metabase-data
+              mountPath: /metabase-data
+          {{- end }}
+
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: metabase-data
+          persistentVolumeClaim:
+            claimName: {{ include "metabase.fullname" . }}-data
+      {{- end }}
