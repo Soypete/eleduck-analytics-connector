@@ -9,7 +9,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-//go:embed migrations/*.sql
+//go:embed database/migrations/*.sql
 var embedMigrations embed.FS
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := goose.Up(db, "migrations"); err != nil {
+	if err := goose.Up(db, "database/migrations"); err != nil {
 		panic(err)
 	}
 
