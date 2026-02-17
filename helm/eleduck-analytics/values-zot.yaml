@@ -44,16 +44,15 @@ metabase:
   enabled: true
   image:
     tag: latest
-  siteUrl: "https://analytics.catalyst.local"
+  siteUrl: "https://analytics.soypetetech.local"
+  ingress:
+    additionalHosts:
+      - analytics.tail6fbc5.ts.net
+  database:
+    useExternal: false  # Use embedded H2 database for app data
   persistence:
     storageClass: longhorn
     size: 10Gi
-  # Add hostAliases to bypass DNS resolution issues
-  hostAliases:
-    - ip: "52.8.172.168"
-      hostnames:
-        - "aws-0-us-west-1.pooler.supabase.com"
-  # Metabase app database uses Supabase
   # Analytics queries use MotherDuck (configured in Metabase UI)
 
 # SQLMesh configuration

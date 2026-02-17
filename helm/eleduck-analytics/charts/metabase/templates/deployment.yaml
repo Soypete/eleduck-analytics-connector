@@ -34,6 +34,7 @@ spec:
               name: http
           env:
             # Application database (stores Metabase's own data)
+            {{- if .Values.database.useExternal }}
             - name: MB_DB_TYPE
               value: postgres
             - name: MB_DB_HOST
@@ -57,6 +58,13 @@ spec:
               value: "true"
             - name: MB_DB_SSL_MODE
               value: "require"
+            {{- end }}
+            {{- else }}
+            # Use embedded H2 database (default)
+            - name: MB_DB_TYPE
+              value: h2
+            - name: MB_DB_FILE
+              value: /metabase-data/metabase.db
             {{- end }}
 
             # Site settings
