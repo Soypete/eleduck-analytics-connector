@@ -105,5 +105,97 @@ spec:
                   key: youtube_access_token
                   optional: true
 
+            # Twitch credentials
+            - name: TWITCH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitch_client_id
+                  optional: true
+            - name: TWITCH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitch_client_secret
+                  optional: true
+            - name: TWITCH_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitch_access_token
+                  optional: true
+
+            # Twitter/X credentials
+            - name: TWITTER_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitter_bearer_token
+                  optional: true
+            - name: TWITTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitter_api_key
+                  optional: true
+            - name: TWITTER_API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitter_api_secret
+                  optional: true
+            - name: TWITTER_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitter_access_token
+                  optional: true
+            - name: TWITTER_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: twitter_access_secret
+                  optional: true
+
+            # TikTok credentials
+            - name: TIKTOK_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: tiktok_app_id
+                  optional: true
+            - name: TIKTOK_APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: tiktok_app_secret
+                  optional: true
+            - name: TIKTOK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: tiktok_access_token
+                  optional: true
+
+            # LinkedIn credentials
+            - name: LINKEDIN_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: linkedin_client_id
+                  optional: true
+            - name: LINKEDIN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: linkedin_client_secret
+                  optional: true
+            - name: LINKEDIN_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.credentialsSecretName }}
+                  key: linkedin_access_token
+                  optional: true
+
             resources:
               {{- toYaml .Values.resources | nindent 14 }}
